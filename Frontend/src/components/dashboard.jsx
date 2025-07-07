@@ -1,0 +1,136 @@
+import { useEffect, useState } from "react"
+import { refreshAccessToken } from "../authenticate/auth"
+import { useNavigate } from "react-router"
+import axios from "axios"
+
+
+export default function Dashboard() {
+    const navigate = useNavigate()
+    const [userData, setUserData] = useState({})
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const access = localStorage.getItem('access')
+        const fetchDashboard = async () => {
+            try {
+
+                const response = await axios.get("http://localhost:8000/api/dashboard", {
+                    headers: {
+                        Authorization: `Bearer ${access}`
+                    }
+                })
+
+                setUserData(response.data)
+                console.log(response.data);
+                
+                
+                setLoading(false)
+
+            } catch (error) {
+                if (error.response?.status == 401) {
+                    const refresh_token = await refreshAccessToken()
+                    if (refresh_token) {
+                        try {
+                            const retry = await axios.get("http://localhost:8000/api/dashboard", {
+                                headers: {
+                                    Authorization: `Bearer ${refresh_token}`
+                                }
+                            })
+                            setUserData(retry.data)
+                            setLoading(false)
+                        } catch (retryError) {
+                            console.log(retryError)
+                            navigate('/')
+                        }
+                    }
+                } else {
+                    console.log("refresh token fail", error)
+                    // localStorage.removeItem('access')
+                    navigate('/')
+                }
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchDashboard()
+
+    }, [])
+
+    const role = userData?.user?.role
+
+    return (
+        <>
+            <div style={styles}>
+
+                <h2 style={{ textAlign: "center" }}>Dashboard</h2>
+                <hr />
+
+                {
+                    loading ? <h4>Loading...</h4> :
+                        <div>
+                            <h3 style={{ textAlign: "initial", textTransform: "uppercase" }}>Welcome, Mr. {userData?.user?.first_name}</h3>
+                        </div>
+
+                }
+
+                <div style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "space-evenly",
+                }}>
+
+                    {(role == "admin" || role == "manager") && (
+                        <div style={total_container}>
+                            <span>Total Users : {userData?.total_users}</span>
+                            <span>Total Admins : {userData?.total_admins}</span>
+                            {
+                                (role === "admin") && (
+                                    <>
+
+                                        <span>Total Managers : {userData?.total_managers}</span>
+                                    </>
+                                )
+                            }
+                            <span>Total Drivers : {userData?.total_drivers}</span>
+                            <span>Total Vehicles : {userData?.total_vehicles}</span>
+                        </div>
+
+
+                    )}
+
+                    {
+                        (role == "driver") && (
+                            <div style={total_container}>
+                               <span>Vehicle Assigned : {
+                                userData?.driver_profile?.vehicle_assigned ? userData?.driver_profile?.vehicle_assigned?.vehicle_name : "No Vehicle Assigned"
+                                }</span>
+                            </div>
+                        )
+                    }
+
+                </div>
+            </div >
+        </>
+    )
+}
+
+const total_container = {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+    margin: "30px",
+    boxShadow: "inset rgba(0, 0, 0, 0.1) 11px -5px 14px 3px",
+    padding: "15px",
+    borderRadius: "15px"
+}
+
+const styles = {
+    width: "80%",
+    // border:"2px solid green",
+
+    margin: "20px auto",
+    padding: "20px",
+    background: "#ffffff",
+    borderRadius: "8px",
+    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+}
