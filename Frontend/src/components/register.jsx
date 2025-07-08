@@ -53,12 +53,16 @@ export default function RegisterUser() {
                 }
             })
             // data = response.data
-            console.log(response.data.username)
+            console.log(response.data.data?.id)
+            const v= localStorage.setItem('vehicles',JSON.stringify(response.data.vehicle))
+            const d= localStorage.setItem('driver',JSON.stringify(response.data.data))
+            console.log(d);
+            
             setLoading(false)
             if (formData.role == 'manager') {
                 navigate('/home/managers')
             } else if (formData.role == 'driver') {
-                navigate(`/home/registerDriver/${response.data.username}`)
+                navigate(`/home/registerDriver/${response.data.data?.id}`)
             } else {
                 navigate('/')
             }
@@ -74,7 +78,7 @@ export default function RegisterUser() {
                     if (formData.role == 'manager') {
                         navigate('/home/managers')
                     } else if (formData.role == 'driver') {
-                        navigate('/home/registerDriver')
+                        navigate(`/home/registerDriver/${retry.data.data?.id}`)
                     } else {
                         navigate('/')
                     }
@@ -135,7 +139,7 @@ export default function RegisterUser() {
 
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>Image</Form.Label>
-                        <Form.Control style={Input} name='image' type="file" onChange={(e) => setImage(e.target.files[0])} />
+                        <Form.Control style={Input} accept='application/jpeg' name='image' type="file" onChange={(e) => setImage(e.target.files[0])} />
                     </Form.Group>
                 </div>
                 <hr />

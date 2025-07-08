@@ -63,6 +63,7 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ('email', 'password')
         
 class VehicleSerializer(serializers.ModelSerializer):
+    is_assigned = serializers.BooleanField(default = False , read_only = True)
     class Meta:
         model = Vehicle
         fields = '__all__'

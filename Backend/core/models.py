@@ -43,6 +43,7 @@ class Vehicle(models.Model):
     vehicle_photos = models.ImageField(upload_to='vehicle_img', null=True, blank=True)
     vehicle_chassiNumber = models.CharField(max_length=20, unique=True)
     vehicle_registration = models.CharField(max_length=20, unique=True)
+    is_assigned = models.BooleanField(default=False)
     
     def __str__(self):
         return self.vehicle_name

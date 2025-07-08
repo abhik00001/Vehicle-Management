@@ -114,6 +114,24 @@ def get_drivers(request):
     serializer = UserSerializer(data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_driver(request):
+    data = request.data
+    userID = data.get('user')
+    user = User.objects.get(id=int(userID))
+    print(user)
+    
+    serializer = DriverSerializer(data = data)
+    if serializer.is_valid():
+        val = serializer.save(user = user)
+        print(val.vehicle_assigned )
+        if val.vehicle_assigned == False:
+            val.vehicle_assigned.is_assigned = True
+            val.vehicle_assigned.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def fetch_driver_detail(request,driver_id):

@@ -85,6 +85,8 @@ export default function DriverDetail() {
             }
         }
     }
+    console.log(driverID);
+    
     return (
         <>
             <div style={styles}>
@@ -109,7 +111,7 @@ export default function DriverDetail() {
                                     </div>
 
                                     <div style={detail}>
-                                        <span style={{ width: "222px" }} ><img style={{ width: "216px" }} src={`http://localhost:8000/${driver.license}`} /></span>
+                                        <span style={{ width: "222px",color:"blue" }} >{driver.license.split("/")[3]}</span>
 
                                         <span>License Expiry : {driver.license_exp}</span>
                                         <span>Driving Experience : {driver.experience} years</span>
@@ -118,8 +120,8 @@ export default function DriverDetail() {
 
                                     <div style={detail}>
                                         <span>Vehical Assigned :  {
-                                            driver.vehicle_assigned.vehicle_name ?
-                                                driver.vehicle_assigned.vehicle_name :
+                                            driver.vehicle_assigned?.vehicle_name ?
+                                                driver.vehicle_assigned?.vehicle_name :
                                                 "No Vehicle Assigned"
                                         } </span>
                                         <span>Address : {driver.address}</span>
