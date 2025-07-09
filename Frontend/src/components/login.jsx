@@ -8,6 +8,7 @@ import axios from 'axios';
 function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error,setError] = useState('')
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
@@ -18,14 +19,14 @@ function LoginPage() {
                     'Content-Type': 'application/json'
                 }
             })
-            console.log(res.data)
+            // console.log(res.data)
             localStorage.setItem('access', res.data.access)
             localStorage.setItem('refresh', res.data.refresh)
             localStorage.setItem('user', JSON.stringify(res.data.user));
             navigate("/home")
         }
         catch (err) {
-            console.error(err.res?.data || err.message)
+            setError("*Invalid Credentails*")
         }
     }
 
@@ -42,6 +43,7 @@ function LoginPage() {
                     <Form.Label style={label}>Password</Form.Label>
                     <Form.Control style={Input} onChange={(e) => { setPassword(e.target.value) }} type="password" placeholder="Password" />
                 </Form.Group>
+                <p style={{color:"red"}}>{error}</p>
                 <Button className='mb-3' variant="primary" type="submit" style={button}>
                     Submit
                 </Button>

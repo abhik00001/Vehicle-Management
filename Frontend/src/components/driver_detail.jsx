@@ -56,7 +56,6 @@ export default function DriverDetail() {
     }, [driverID])
 
     const deletehandle = async (e) => {
-        e.preventDefault()
         const access = localStorage.getItem('access')
         try {
             const response = await axios.delete(`http://127.0.0.1.1:8000/api/user_delete/${driverID}`, {

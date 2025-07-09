@@ -22,8 +22,8 @@ export default function Dashboard() {
 
                 setUserData(response.data)
                 console.log(response.data);
-                
-                
+
+
                 setLoading(false)
 
             } catch (error) {
@@ -91,8 +91,18 @@ export default function Dashboard() {
                                     </>
                                 )
                             }
+                            {
+                                (role === 'manager') && (
+                                    <>
+                                        <span>Total Managers : {userData?.total_managers}</span>
+
+                                    </>
+
+                                )
+                            }
                             <span>Total Drivers : {userData?.total_drivers}</span>
                             <span>Total Vehicles : {userData?.total_vehicles}</span>
+
                         </div>
 
 
@@ -101,14 +111,48 @@ export default function Dashboard() {
                     {
                         (role == "driver") && (
                             <div style={total_container}>
-                               <span>Vehicle Assigned : {
-                                userData?.driver_profile?.vehicle_assigned ? userData?.driver_profile?.vehicle_assigned?.vehicle_name : "No Vehicle Assigned"
+                                <span>Vehicle Assigned : {
+                                    userData?.driver_profile?.vehicle_assigned ? userData?.driver_profile?.vehicle_assigned?.vehicle_name : "No Vehicle Assigned"
                                 }</span>
                             </div>
                         )
                     }
 
                 </div>
+
+                {(role == "admin" || role == "manager") && (
+                    <>
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", }}>
+                            <div style={total_container}>
+                                {
+                                    <>
+                                        <span>Total Drivers : {userData?.total_drivers}</span>
+                                        <br />
+                                        <span>Assigned Drivers : {userData?.assigned_drivers}</span>
+                                        <span>Unassigned Drivers : {userData?.unassigned_drivers}</span>
+                                        <span>Total Drivers Added : {userData?.userAdded_drivers}</span>
+                                    </>
+                                }
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", }}>
+                            <div style={total_container}>
+                                {
+                                    <>
+                                        <span>Total Vehicles : {userData?.total_vehicles}</span>
+                                        <br />
+                                        <span>Assigned Vehicles : {userData?.assigned_vehicle}</span>
+                                        <br />
+                                        <span>UnAssigned Vehicles : {userData?.unassigned_vehicle}</span>
+                                        <br />
+                                        <span>Total Vehicles Added : {userData?.userAdded_vehicles}</span>
+                                    </>
+                                }
+                            </div>
+                        </div>
+                    </>
+                )}
             </div >
         </>
     )
@@ -121,7 +165,8 @@ const total_container = {
     margin: "30px",
     boxShadow: "inset rgba(0, 0, 0, 0.1) 11px -5px 14px 3px",
     padding: "15px",
-    borderRadius: "15px"
+    borderRadius: "15px",
+    flexWrap: "wrap"
 }
 
 const styles = {

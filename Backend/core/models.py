@@ -21,7 +21,7 @@ class User(AbstractUser,PermissionsMixin):
     created_by = models.ForeignKey("self", on_delete=models.CASCADE, related_name='created_user', null=True, blank=True)
     updated_by = models.ForeignKey("self", on_delete=models.CASCADE, related_name='updated_user', null=True, blank=True)
     
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     joined_on = models.DateTimeField(auto_now_add=True)
     
     
@@ -36,14 +36,20 @@ class Vehicle(models.Model):
         ("LTV","LTV"),
         ("HTV","HTV"),
     ]
-    vehicle_name = models.CharField(max_length=20, unique=True)
-    vehicle_model = models.CharField(max_length=100)
-    vehicle_year = models.PositiveIntegerField()
     vehicle_type = models.CharField(max_length=20, choices= vehicle_types)
+    vehicle_name = models.CharField(max_length=20, unique=True)
+    vehicle_year = models.PositiveIntegerField()
+    vehicle_model = models.CharField(max_length=100)
     vehicle_photos = models.ImageField(upload_to='vehicle_img', null=True, blank=True)
     vehicle_chassiNumber = models.CharField(max_length=20, unique=True)
     vehicle_registration = models.CharField(max_length=20, unique=True)
     is_assigned = models.BooleanField(default=False)
+    
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_vehicle', null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='updated_vehicle', null=True, blank=True)
     
     def __str__(self):
         return self.vehicle_name

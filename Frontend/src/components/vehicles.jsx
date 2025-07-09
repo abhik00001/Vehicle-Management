@@ -3,62 +3,83 @@ import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import '../css/vehicles.css'
-import {refreshAccessToken} from '../authenticate/auth'
-import { useNavigate } from 'react-router';
+import { refreshAccessToken } from '../authenticate/auth'
+import { Link, useNavigate } from 'react-router';
 
 
 export default function Vehicles() {
+    const [searchValue, setSearchValue] = useState('')
     const navigate = useNavigate()
     const [vehicles, setVehicles] = useState([])
     const [loading, setLoading] = useState(true)
-    useEffect(() => {
-        async function fetchVehicles() {
-            try {
-                const access_token = localStorage.getItem('access')
-                const response = await axios.get("http://127.0.0.1:8000/api/vehicles/", {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
+
+    async function fetchVehicles(value = '') {
+        try {
+            const access_token = localStorage.getItem('access')
+            const response = await axios.get(`http://127.0.0.1:8000/api/vehicles/?search=${value}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                }
+            })
+            setVehicles(response.data)
+            setLoading(false)
+        }
+        catch (error) {
+            console.log(error)
+            if (error.response?.status == 401) {
+                const newAccess = await refreshAccessToken()
+                if (newAccess) {
+                    try {
+                        const retry = await axios.get(`http://127.0.0.1:8000/api/vehicles/?search=${value}`, {
+                            headers: {
+                                Authorization: `Bearer ${newAccess}`,
+                            }
+                        });
+                        setVehicles(retry.data)
+                        setLoading(false)
                     }
-                })
-                setVehicles(response.data)
-                setLoading(false)
-            }
-            catch (error) {
-                console.log(error)
-                if (error.response?.status == 401) {
-                    const newAccess = await refreshAccessToken()
-                    if (newAccess) {
-                        try {
-                            const retry = await axios.get("http://127.0.0.1:8000/api/vehicles/", {
-                                headers: {
-                                    Authorization: `Bearer ${newAccess}`,
-                                }
-                            });
-                            setVehicles(retry.data)
-                            setLoading(false)
-                        }
-                        catch (retry_error) {
-                            console.log(retry_error)
-                        }
-                    } else {
-                        console.log("could not retry token");
-                        localStorage.removeItem('access')
-                        navigate("/")
+                    catch (retry_error) {
+                        console.log(retry_error)
                     }
                 } else {
-                    console.error("API error:", error);
+                    console.log("could not retry token");
+                    localStorage.removeItem('access')
+                    navigate("/")
                 }
-            } finally {
-                setLoading(false);
+            } else {
+                console.error("API error:", error);
             }
+        } finally {
+            setLoading(false);
         }
+    }
+    useEffect(() => {
         fetchVehicles()
     }, [])
+
+    function handleSearch() {
+        setLoading(true)
+        fetchVehicles(searchValue)
+        setLoading(false)
+    }
+
     return (
         <>
             <div style={styles}>
 
-                <h2 style={{ textAlign: "center" }}>Vehicles</h2>
+
+                 <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div style={{ margin: "12px", }}>
+                        <Link to="/home/addVehicle"><Button>Add Vehicle</Button></Link>
+                    </div>
+                    <h2>Vehicles</h2>
+                    <div style={{ margin: "12px", }}>
+                        <input type="text" name="search" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
+                        <Button style={{ marginLeft: "12px" }} onClick={handleSearch}>Search</Button>
+                    </div>
+                </div>
+
+
                 <hr />
                 <div style={{
                     display: "flex",
@@ -69,9 +90,9 @@ export default function Vehicles() {
                         vehicles.map((vehicle, index) => {
                             return (
                                 <Card key={index} >
-                                    <Card.Img variant="top" src={`http://127.0.0.1:8000${vehicle.vehicle_photos}`} />
+                                    <Card.Img variant="top" style={{width:"100%",height:"80%"}} src={`http://127.0.0.1:8000${vehicle.vehicle_photos}`} />
                                     <Card.Body>
-                                        <Card.Title style={{ textAlign: "center" }}>{vehicle.vehicle_name}</Card.Title>
+                                        <Card.Title style={{ textAlign: "center",textTransform:"capitalize" }}>{vehicle.vehicle_name}</Card.Title>
 
                                         <Card.Text>
 

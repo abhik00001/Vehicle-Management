@@ -12,6 +12,7 @@ import LayoutHeader from './components/layoutHeader'
 import DriverDetail from './components/driver_detail'
 import RegisterUser from './components/register'
 import RegisterDriverProfile from './components/driver_profile'
+import AddVehicle from './components/vehicle_add'
 
 
 
@@ -32,12 +33,15 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path='vehicles' element={<Vehicles />} />
+            <Route path='addvehicle' element={<AddVehicle />} />
+            
+            <Route path='registerUser' element= {<RegisterUser/>}/>
             <Route path='managers' element={<Managers />} />
+
             <Route path='drivers' element={<Driver />} />
             <Route path='drivers/:driverID' element={<DriverDetail />} />
             <Route path='registerDriver/:driverUsername' element={<RegisterDriverProfile/>}/>
 
-            <Route path='registerUser' element= {<RegisterUser/>}/>
           </Route>
         </Routes>
       </BrowserRouter>

@@ -21,10 +21,14 @@ def register_user(request):
         vehicles = Vehicle.objects.all()
         vehicle_data = VehicleSerializer(vehicles, many=True)
         if serializer.is_valid():
-            user = serializer.save()
-            user.created_by = request.user
-            user.updated_by = request.user
-            user.save()
+            user = serializer.save(created_by = request.user)
+            if user.role == 'driver':
+                user.is_active = False
+                user.save()
+            else:
+                user.is_active = True
+                user.save()
+                
             return Response({"data":serializer.data,"vehicle":vehicle_data.data}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -42,7 +46,6 @@ def login_user(request):
         email = request.data.get('email')
         password= request.data.get('password')
         user = User.objects.filter(email = email).first()
-        print(email,password)
         if user and user.check_password(password):
         # user = authenticate(email = email,password = password)
         # if user is not None:
@@ -71,35 +74,72 @@ def custom_token_refresh(request):
         return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def dashboard(request):
     user = request.user
+    #for driver Dashboard
     driver_detail = DriversProfile.objects.filter(user=user).first()
+    
+    #admin     
     total_users = User.objects.all().count()
     admins = User.objects.filter(role = 'admin').count()
     managers = User.objects.filter(role = 'manager').count()
+    
     drivers = User.objects.filter(role = 'driver').count()
+    assigned_drivers = User.objects.filter(role = 'driver',is_active = True).count()
+    unassigned_drivers = User.objects.filter(role = 'driver',is_active = False).count()
+    userAdded_drivers = User.objects.filter(role='driver',created_by = request.user).count()
+    
     vehicles = Vehicle.objects.all().count()
+    userAdded_vehicles = Vehicle.objects.filter(created_by = request.user).count()
+    assigned_vehicle = Vehicle.objects.filter(is_assigned = True).count()
+    unassigned_vehicle = Vehicle.objects.filter(is_assigned = False).count()
     
     serializer = UserSerializer(user)
     driver_profile = DriverSerializer(driver_detail)
     # print(driver_profile)
     return Response({
         'user': serializer.data,
-        'total_vehicles':vehicles,
         'total_users':total_users,
         'total_admins': admins,
         'total_managers': managers,
+        
+        'total_vehicles':vehicles,
+        'unassigned_vehicle': unassigned_vehicle,
+        'assigned_vehicle': assigned_vehicle,
+        'userAdded_vehicles':userAdded_vehicles,
+        
         'total_drivers': drivers,
+        'assigned_drivers':assigned_drivers,
+        'unassigned_drivers':unassigned_drivers,
+        'userAdded_drivers':userAdded_drivers,
         'driver_profile': driver_profile.data
     },status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_vehicles(request):
-    data = Vehicle.objects.all()
+    query = request.GET.get('search','')
+    data = Vehicle.objects.filter(
+        Q(vehicle_name__icontains=query)|Q(vehicle_model__icontains=query)
+    )
     serializer = VehicleSerializer(data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_vehicle(request):
+    data = request.data
+    user = User.objects.filter(username = request.user)
+    serializer = VehicleSerializer(data=data)
+    print(serializer)
+    if serializer.is_valid():
+        vehicle = serializer.save(created_by =user)
+        vehicle.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
 
 # drivers 
 
@@ -126,8 +166,8 @@ def add_driver(request):
     if serializer.is_valid():
         val = serializer.save(user = user)
         print(val.vehicle_assigned )
-        if val.vehicle_assigned == False:
-            val.vehicle_assigned.is_assigned = True
+        if val.vehicle_assigned != None:
+            val.user.is_active = True
             val.vehicle_assigned.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

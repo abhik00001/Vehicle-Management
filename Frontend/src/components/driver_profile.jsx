@@ -8,6 +8,7 @@ import { refreshAccessToken } from '../authenticate/auth';
 
 
 export default function RegisterDriverProfile() {
+    const vehicle = JSON.parse(localStorage.getItem('vehicles'))
     const driver = JSON.parse(localStorage.getItem('driver'))
     const { driverUsername } = useParams();
     const [details, setDetails] = useState({
@@ -78,7 +79,6 @@ export default function RegisterDriverProfile() {
         }
     }
 
-    const vehicle = JSON.parse(localStorage.getItem('vehicles'))
     console.log(driver);
 
 

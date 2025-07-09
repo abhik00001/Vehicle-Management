@@ -67,6 +67,9 @@ class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = '__all__'
+        extra_kwargs = {
+            "created_by": {'read_only': True},
+        }
         
 class DriverSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

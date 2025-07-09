@@ -2,6 +2,7 @@ span{
     font-size: 20px;
     font-weight: 500;
     display: block;
+    text-transform: capitalize;
 }
 
 .card{
