@@ -22,12 +22,15 @@ def register_user(request):
         vehicle_data = VehicleSerializer(vehicles, many=True)
         if serializer.is_valid():
             user = serializer.save(created_by = request.user)
+            print(user)
             if user.role == 'driver':
                 user.is_active = False
                 user.save()
+                print(user)
             else:
                 user.is_active = True
                 user.save()
+                print(user)
                 
             return Response({"data":serializer.data,"vehicle":vehicle_data.data}, status=status.HTTP_201_CREATED)
         else:
@@ -85,10 +88,14 @@ def dashboard(request):
     admins = User.objects.filter(role = 'admin').count()
     managers = User.objects.filter(role = 'manager').count()
     
+    # drivers 
+    
     drivers = User.objects.filter(role = 'driver').count()
     assigned_drivers = User.objects.filter(role = 'driver',is_active = True).count()
     unassigned_drivers = User.objects.filter(role = 'driver',is_active = False).count()
     userAdded_drivers = User.objects.filter(role='driver',created_by = request.user).count()
+    
+    # vehicles
     
     vehicles = Vehicle.objects.all().count()
     userAdded_vehicles = Vehicle.objects.filter(created_by = request.user).count()
@@ -117,6 +124,8 @@ def dashboard(request):
     },status=status.HTTP_200_OK)
 
 
+# Vehicles
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_vehicles(request):
@@ -131,14 +140,24 @@ def get_vehicles(request):
 @permission_classes([IsAuthenticated])
 def add_vehicle(request):
     data = request.data
-    user = User.objects.filter(username = request.user)
+    user = User.objects.get(username = request.user)
     serializer = VehicleSerializer(data=data)
     print(serializer)
     if serializer.is_valid():
-        vehicle = serializer.save(created_by =user)
-        vehicle.save()
+        vehicle = serializer.save(created_by = user)
+        # vehicle.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)
     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteVehicle(request,vehicleID):
+    vehicle = Vehicle.objects.get(id = vehicleID)
+    try:
+        vehicle.delete()
+        return Response('Vehicle Deleted Successfully',status=status.HTTP_202_ACCEPTED)
+    except vehicle.DoesNotExist:
+        return Response ('Vehicle not exist',status=status.HTTP_204_NO_CONTENT)
         
 
 # drivers 
@@ -159,16 +178,20 @@ def get_drivers(request):
 def add_driver(request):
     data = request.data
     userID = data.get('user')
+    vehicleID = data.get('vehicle_assigned')
     user = User.objects.get(id=int(userID))
-    print(user)
-    
+    userSerializer = UserSerializer(user)
+    vehicle = Vehicle.objects.get(id = vehicleID)
+    print(data,user.is_active,vehicle)
     serializer = DriverSerializer(data = data)
     if serializer.is_valid():
-        val = serializer.save(user = user)
-        print(val.vehicle_assigned )
-        if val.vehicle_assigned != None:
+        if vehicle == None:
+            val = serializer.save(user=user)
+        elif vehicle != None:
+            val = serializer.save(user = user , vehicle_assigned = vehicle)
             val.user.is_active = True
-            val.vehicle_assigned.save()
+            val.user.created_by = request.user
+            val.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

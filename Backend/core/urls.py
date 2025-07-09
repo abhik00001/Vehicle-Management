@@ -16,5 +16,6 @@ urlpatterns = [
     path('dashboard/',dashboard),
     
     path("vehicles/",get_vehicles),
-    path("vehicle/register",add_vehicle)
+    path("vehicle/register",add_vehicle),
+    path('delete_vehicle/<int:vehicleID>' , deleteVehicle )
 ]

@@ -63,6 +63,38 @@ export default function Vehicles() {
         setLoading(false)
     }
 
+    async function deletehandle(vehicleID,vehicleName){
+        const access =  localStorage.getItem('access')
+        try{
+            const res = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`,{
+                headers:{
+                    Authorization: `Bearer ${access}`
+                }
+            })
+            navigate('/home/vehicles')
+            alert(`${vehicleName} Deleted Successfully`)
+        }catch(error){
+            if (error.res?.status == 401){
+                const newAccess = await refreshAccessToken()
+                if (newAccess) {
+                    const retry =  await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`,{
+                        headers:{
+                            Authorization: `Bearer ${newAccess}`
+                        }
+                    })
+                    alert(` ${vehicleName} Deleted Successfully`)
+                    navigate('/hame/vehicles')
+                }else{
+                    console.log('Retry token Unsuccessful');
+                    localStorage.removeItem('access')
+                    navigate('/')   
+                }
+            }else{
+                console.log(error);
+            }
+        }
+    }
+
     return (
         <>
             <div style={styles}>
@@ -102,6 +134,7 @@ export default function Vehicles() {
                                             <span>Registration Number : {vehicle.vehicle_registration}</span>
                                             <span>Year : {vehicle.vehicle_year}</span>
                                         </Card.Text>
+                                        <Button variant='danger' onClick={()=>{deletehandle(vehicle.id,vehicle.vehicle_name)}}>Delete</Button>
                                     </Card.Body>
                                 </Card>
                             )

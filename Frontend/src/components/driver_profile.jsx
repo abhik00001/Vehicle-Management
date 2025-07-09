@@ -45,7 +45,9 @@ export default function RegisterDriverProfile() {
         AllData.append('license_exp', details.expiry)
         AllData.append('experience', details.experience)
         AllData.append('address', details.address)
-        AllData.append('license', license)
+        if (license){
+            AllData.append('license', license)
+        }
         try {
             const response = await axios.post('http://localhost:8000/api/driver/register', AllData, {
                 headers: {

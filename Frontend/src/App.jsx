@@ -22,7 +22,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={
-            isAuthenticated()? <Navigate to="/home" /> : <Navigate to ="login_page" />
+            isAuthenticated()? <Navigate to="/home" /> : <Navigate to ="/login_page" />
           } />
           <Route path="/login_page" element={<LoginPage />} />
           <Route path="forgot_password" element={<ForgotPage />} />

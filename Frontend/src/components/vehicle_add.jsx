@@ -40,7 +40,7 @@ export default function AddVehicle() {
             const response = await axios.post('http://localhost:8000/api/vehicle/register', AllData, {
                 headers: {
                     Authorization: `Bearer ${access}`,
-                    ContentType: "multipart/form-data"
+                    // ContentType: "multipart/form-data"
                 }
             })
 
@@ -52,8 +52,8 @@ export default function AddVehicle() {
                 if (newAccess) {
                     const retry = await axios.post('http://localhost:8000/api/vehicle/register', AllData, {
                         headers: {
-                            Authorization: `Bearer ${newAccess}`,
-                            ContentType: "multipart/form-data"
+                            'Authorization': `Bearer ${newAccess}`,
+                            // 'Content-Type': "multipart/form-data"
                         }
                     })
                     navigate('/home/vehicles')
@@ -63,14 +63,14 @@ export default function AddVehicle() {
                     navigate('/')
                 }
             }else{
-                console.log(error)
+                console.log(error,"does not valid")
             }
         }
     }
 
     return (
         <div style={containerStyle} >
-            <Form style={loginForm} onSubmit={handleSubmit}>
+            <Form style={loginForm} onSubmit={handleSubmit} encType="multipart/form-data">
                 <h2 style={{ textAlign: "center", color: "#333333", }}>Add Driver Details</h2>
                 <hr />
 
