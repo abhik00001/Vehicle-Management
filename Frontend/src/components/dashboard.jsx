@@ -55,6 +55,7 @@ export default function Dashboard() {
         fetchDashboard()
 
     }, [])
+    console.log(userData);
 
     const role = userData?.user?.role
 
@@ -91,7 +92,7 @@ export default function Dashboard() {
                                     </>
                                 )
                             }
-                            {
+                            {/* {
                                 (role === 'manager') && (
                                     <>
                                         <span>Total Managers : {userData?.total_managers}</span>
@@ -99,7 +100,7 @@ export default function Dashboard() {
                                     </>
 
                                 )
-                            }
+                            } */}
                             <span>Total Drivers : {userData?.total_drivers}</span>
                             <span>Total Vehicles : {userData?.total_vehicles}</span>
 
@@ -151,6 +152,25 @@ export default function Dashboard() {
                                 }
                             </div>
                         </div>
+
+                        {
+                            (role == 'admin') && (
+
+                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", }}>
+                                    <div style={total_container}>
+                                        {
+                                            <>
+                                                <span>Total Managers : {userData?.total_managers}</span>
+                                                <br />
+
+                                                <span>Managers Added By User : {userData?.userAdded_managers}</span>
+                                            </>
+                                        }
+                                    </div>
+                                </div>
+                            )
+                        }
+
                     </>
                 )}
             </div >

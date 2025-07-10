@@ -9,8 +9,9 @@ import { Link, useNavigate } from 'react-router';
 
 export default function Vehicles() {
     const [searchValue, setSearchValue] = useState('')
+    const [users, setUsers] = useState([])
     const navigate = useNavigate()
-    const [vehicles, setVehicles] = useState([])
+    const [vehicles, setVehicles] = useState({})
     const [loading, setLoading] = useState(true)
 
     async function fetchVehicles(value = '') {
@@ -21,7 +22,9 @@ export default function Vehicles() {
                     Authorization: `Bearer ${access_token}`,
                 }
             })
-            setVehicles(response.data)
+            setVehicles(response.data.data)
+            setUsers(response.data.users)
+
             setLoading(false)
         }
         catch (error) {
@@ -63,44 +66,47 @@ export default function Vehicles() {
         setLoading(false)
     }
 
-    async function deletehandle(vehicleID,vehicleName){
-        const access =  localStorage.getItem('access')
-        try{
-            const res = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`,{
-                headers:{
+    async function deletehandle(vehicleID, vehicleName) {
+        const access = localStorage.getItem('access')
+        try {
+            const res = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`, {
+                headers: {
                     Authorization: `Bearer ${access}`
                 }
             })
             navigate('/home/vehicles')
             alert(`${vehicleName} Deleted Successfully`)
-        }catch(error){
-            if (error.res?.status == 401){
+        } catch (error) {
+            if (error.res?.status == 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const retry =  await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`,{
-                        headers:{
+                    const retry = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`, {
+                        headers: {
                             Authorization: `Bearer ${newAccess}`
                         }
                     })
                     alert(` ${vehicleName} Deleted Successfully`)
                     navigate('/hame/vehicles')
-                }else{
+                } else {
                     console.log('Retry token Unsuccessful');
                     localStorage.removeItem('access')
-                    navigate('/')   
+                    navigate('/')
                 }
-            }else{
+            } else {
                 console.log(error);
             }
         }
     }
+
+    console.log(users);
+    
 
     return (
         <>
             <div style={styles}>
 
 
-                 <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <div style={{ margin: "12px", }}>
                         <Link to="/home/addVehicle"><Button>Add Vehicle</Button></Link>
                     </div>
@@ -120,11 +126,12 @@ export default function Vehicles() {
                 }}>
                     {loading ? (<p>Loading Vehicles ... </p>) :
                         vehicles.map((vehicle, index) => {
+                            const addedBy = users.find((user) => user.id === vehicle.created_by);
                             return (
                                 <Card key={index} >
-                                    <Card.Img variant="top" style={{width:"100%",height:"80%"}} src={`http://127.0.0.1:8000${vehicle.vehicle_photos}`} />
+                                    <Card.Img variant="top" style={{ width: "100%", height: "80%" }} src={`http://127.0.0.1:8000${vehicle.vehicle_photos}`} />
                                     <Card.Body>
-                                        <Card.Title style={{ textAlign: "center",textTransform:"capitalize" }}>{vehicle.vehicle_name}</Card.Title>
+                                        <Card.Title style={{ textAlign: "center", textTransform: "capitalize" }}>{vehicle.vehicle_name}</Card.Title>
 
                                         <Card.Text>
 
@@ -133,8 +140,11 @@ export default function Vehicles() {
                                             <span>Chassi Number : {vehicle.vehicle_chassiNumber}</span>
                                             <span>Registration Number : {vehicle.vehicle_registration}</span>
                                             <span>Year : {vehicle.vehicle_year}</span>
+                                            <span>Added By : {addedBy?.username || "unknown"}</span>
+
+
                                         </Card.Text>
-                                        <Button variant='danger' onClick={()=>{deletehandle(vehicle.id,vehicle.vehicle_name)}}>Delete</Button>
+                                        <Button variant='danger' onClick={() => { deletehandle(vehicle.id, vehicle.vehicle_name) }}>Delete</Button>
                                     </Card.Body>
                                 </Card>
                             )

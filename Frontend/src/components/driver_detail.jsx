@@ -9,6 +9,7 @@ import '../css/vehicles.css'
 
 export default function DriverDetail() {
     const { driverID } = useParams()
+    const [users,setUsers] = useState([])
     const navigate = useNavigate()
     const [driver, setDriver] = useState({});
     const [loading, setLoading] = useState(true);
@@ -22,7 +23,8 @@ export default function DriverDetail() {
                         'Authorization': `Bearer ${access}`
                     }
                 });
-                setDriver(response.data);
+                setDriver(response.data.data);
+                setUsers(response.data.users)
                 setLoading(false);
             } catch (error) {
                 setError(true)
@@ -35,7 +37,7 @@ export default function DriverDetail() {
                                     'Authorization': `Bearer ${newAccess}`
                                 }
                             })
-                            setDriver(retry.data);
+                            setDriver(retry.data.data);
                             setLoading(false)
                         } catch (error) {
                             console.log(error)
@@ -84,8 +86,9 @@ export default function DriverDetail() {
             }
         }
     }
-    console.log(driverID);
-    
+    console.log(users);
+    const addedBy = users.find(user => user.id === driver?.user.created_by)
+
     return (
         <>
             <div style={styles}>
@@ -105,12 +108,17 @@ export default function DriverDetail() {
                                     <div style={detail}>
                                         <span><img src={`http://localhost:8000/${driver.user?.profile_image}`} /></span>
                                         <span>Name : {driver.user?.first_name} {driver.user?.last_name}</span>
+                                        <br />
                                         <span>Email : {driver.user?.email}</span>
+                                        <br />
                                         <span>Date of Birth : {driver.user?.date_of_birth}</span>
+                                        <br />
                                     </div>
 
                                     <div style={detail}>
-                                        <span style={{ width: "222px",color:"blue" }} >{driver.license.split("/")[3]}</span>
+                                        <span style={{ width: "222px", color: "blue" }}>
+                                            <a href={driver.license} download={driver.license}>{driver.license.split("/")[3]}</a>
+                                            </span>
 
                                         <span>License Expiry : {driver.license_exp}</span>
                                         <span>Driving Experience : {driver.experience} years</span>
@@ -124,6 +132,11 @@ export default function DriverDetail() {
                                                 "No Vehicle Assigned"
                                         } </span>
                                         <span>Address : {driver.address}</span>
+                                        
+                                    </div>
+                                    <div style={detail}>
+                                       <span>Added By : {addedBy?.username}</span>
+                                        
                                     </div>
 
                                 </div>

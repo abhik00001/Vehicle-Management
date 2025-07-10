@@ -104,10 +104,7 @@ export default function RegisterDriverProfile() {
                             {
                                 vehicle.map((item) =>
 
-                                    // item?.is_assigned && (
-                                    //     <option key={item?.id} value={item?.vehicle_name} disabled>{item?.vehicle_name}</option>
-                                    // )
-                                    <option key={item?.id} value={item?.id} >{item?.vehicle_name}</option>
+                                <option key={item?.id} value={item?.id} disabled={item?.is_assigned === true}>{item?.vehicle_name} </option>
 
                                 )
                             }

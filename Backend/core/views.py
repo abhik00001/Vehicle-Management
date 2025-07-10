@@ -21,16 +21,18 @@ def register_user(request):
         vehicles = Vehicle.objects.all()
         vehicle_data = VehicleSerializer(vehicles, many=True)
         if serializer.is_valid():
-            user = serializer.save(created_by = request.user)
+            user = serializer.save()
             print(user)
             if user.role == 'driver':
                 user.is_active = False
+                user.created_by = request.user
                 user.save()
                 print(user)
             else:
                 user.is_active = True
+                user.created_by = request.user
                 user.save()
-                print(user)
+   
                 
             return Response({"data":serializer.data,"vehicle":vehicle_data.data}, status=status.HTTP_201_CREATED)
         else:
@@ -86,7 +88,11 @@ def dashboard(request):
     #admin     
     total_users = User.objects.all().count()
     admins = User.objects.filter(role = 'admin').count()
+    
+    # managers
+    
     managers = User.objects.filter(role = 'manager').count()
+    userAdded_managers = User.objects.filter(role='manager',created_by = request.user).count()
     
     # drivers 
     
@@ -109,7 +115,6 @@ def dashboard(request):
         'user': serializer.data,
         'total_users':total_users,
         'total_admins': admins,
-        'total_managers': managers,
         
         'total_vehicles':vehicles,
         'unassigned_vehicle': unassigned_vehicle,
@@ -120,6 +125,9 @@ def dashboard(request):
         'assigned_drivers':assigned_drivers,
         'unassigned_drivers':unassigned_drivers,
         'userAdded_drivers':userAdded_drivers,
+        
+        'total_managers': managers,
+        'userAdded_managers':userAdded_managers,
         'driver_profile': driver_profile.data
     },status=status.HTTP_200_OK)
 
@@ -133,8 +141,10 @@ def get_vehicles(request):
     data = Vehicle.objects.filter(
         Q(vehicle_name__icontains=query)|Q(vehicle_model__icontains=query)
     )
+    users = User.objects.all()
+    userSerialize = UserSerializer(users,many=True)
     serializer = VehicleSerializer(data, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({"data":serializer.data,"users":userSerialize.data}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -180,18 +190,20 @@ def add_driver(request):
     userID = data.get('user')
     vehicleID = data.get('vehicle_assigned')
     user = User.objects.get(id=int(userID))
-    userSerializer = UserSerializer(user)
+    
     vehicle = Vehicle.objects.get(id = vehicleID)
-    print(data,user.is_active,vehicle)
+    
     serializer = DriverSerializer(data = data)
     if serializer.is_valid():
         if vehicle == None:
-            val = serializer.save(user=user)
+            serializer.save(user=user)
+            print('none')
         elif vehicle != None:
-            val = serializer.save(user = user , vehicle_assigned = vehicle)
-            val.user.is_active = True
-            val.user.created_by = request.user
-            val.save()
+            serializer.save(user = user , vehicle_assigned = vehicle)
+            print('not none')
+            user.is_active = True
+            user.save()
+            
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -199,11 +211,13 @@ def add_driver(request):
 @permission_classes([IsAuthenticated])
 def fetch_driver_detail(request,driver_id):
     try:
+        users = User.objects.all()
+        UserSerialize = UserSerializer(users,many = True)
         data = DriversProfile.objects.select_related('user').get(user__id=driver_id)
         print(data.vehicle_assigned)
         serializer = DriverSerializer(data)
         # print(serializer.data['vehicle_assigned'])
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response({"data":serializer.data,"users":UserSerialize.data},status=status.HTTP_200_OK)
     except DriversProfile.DoesNotExist:
         return Response({'error': 'Driver not found'}, status=status.HTTP_404_NOT_FOUND)
     

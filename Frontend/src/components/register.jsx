@@ -8,6 +8,7 @@ import { refreshAccessToken } from '../authenticate/auth';
 import RegisterDriverProfile from './driver_profile';
 
 export default function RegisterUser() {
+    const user = JSON.parse(localStorage.getItem('user'));
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -97,6 +98,9 @@ export default function RegisterUser() {
     };
 
 
+    const userRole = user.role
+    
+    
 
     return (
         <div style={containerStyle} >
@@ -108,7 +112,9 @@ export default function RegisterUser() {
                     <Form.Group className="mb-3" style={{ marginTop: "auto" }}>
                         <Form.Label style={label}>Role</Form.Label>
                         <select name='role' onChange={inputValue} >
-                            <option value="admin">Admin</option>
+                            {
+                            userRole === 'admin' ? <option value="admin">Admin</option> : null
+                            }
                             <option value="manager">Manager</option>
                             <option value="driver">Driver</option>
                         </select>
