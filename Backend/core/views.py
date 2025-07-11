@@ -27,7 +27,7 @@ def register_user(request):
                 user.is_active = False
                 user.created_by = request.user
                 user.save()
-                print(user)
+                print(user,'driver')
             else:
                 user.is_active = True
                 user.created_by = request.user
@@ -203,6 +203,8 @@ def add_driver(request):
             print('not none')
             user.is_active = True
             user.save()
+            vehicle.is_assigned = True
+            vehicle.save()
             
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

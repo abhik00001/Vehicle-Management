@@ -86,8 +86,12 @@ export default function DriverDetail() {
             }
         }
     }
-    console.log(users);
+    // console.log(users);
     const addedBy = users.find(user => user.id === driver?.user.created_by)
+
+    const handleUpdate = ()=>{
+        navigate(`updateDriver`)
+    }
 
     return (
         <>
@@ -145,7 +149,7 @@ export default function DriverDetail() {
 
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '20px' }}>
-                    <Button variant="primary">Update</Button>
+                    <Button variant="primary" onClick={handleUpdate}>Update</Button>
                     <Button variant="danger" onClick={deletehandle}>Delete</Button>
                 </div>
             </div>
