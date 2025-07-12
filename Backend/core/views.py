@@ -187,26 +187,28 @@ def get_drivers(request):
 @permission_classes([IsAuthenticated])
 def add_driver(request):
     data = request.data
+    serializer = DriverSerializer(data = data)
+    
     userID = data.get('user')
-    vehicleID = data.get('vehicle_assigned')
     user = User.objects.get(id=int(userID))
     
-    vehicle = Vehicle.objects.get(id = vehicleID)
-    
-    serializer = DriverSerializer(data = data)
+    vehicleID = data.get('vehicle_assigned')
+          
+
     if serializer.is_valid():
-        if vehicle == None:
+        if vehicleID == '':
             serializer.save(user=user)
             print('none')
-        elif vehicle != None:
+        elif vehicleID != '':
+            vehicle = Vehicle.objects.get(id = int(vehicleID))
             serializer.save(user = user , vehicle_assigned = vehicle)
             print('not none')
             user.is_active = True
             user.save()
             vehicle.is_assigned = True
             vehicle.save()
-            
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -216,7 +218,7 @@ def fetch_driver_detail(request,driver_id):
         users = User.objects.all()
         UserSerialize = UserSerializer(users,many = True)
         data = DriversProfile.objects.select_related('user').get(user__id=driver_id)
-        print(data.vehicle_assigned)
+        # print(data.vehicle_assigned)
         serializer = DriverSerializer(data)
         # print(serializer.data['vehicle_assigned'])
         return Response({"data":serializer.data,"users":UserSerialize.data},status=status.HTTP_200_OK)
@@ -227,7 +229,16 @@ def fetch_driver_detail(request,driver_id):
 @api_view(['DELETE'])
 def delete_user(request, userID):
     try:
-        user = User.objects.filter(id=userID)
+        user = User.objects.get(id=userID)
+        driver_details = DriversProfile.objects.filter(user = user)
+        for driver in driver_details:
+            print(driver.vehicle_assigned)
+            if driver.vehicle_assigned != None:
+                vehicle_details = Vehicle.objects.filter(vehicle_name = driver.vehicle_assigned)
+                for vehicle in vehicle_details:
+                    print(vehicle.is_assigned)
+                    vehicle.is_assigned = False
+                    vehicle.save()
         print(user)
         user.delete()
         return Response({'message': 'User deleted successfully'}, status=status.HTTP_200_OK)

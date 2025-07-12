@@ -63,6 +63,12 @@ class DriversProfile(models.Model):
     address= models.TextField()
     experience = models.PositiveIntegerField()
     
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_driverProfile', null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='updated_driverProfile', null=True, blank=True)
+    
     def __str__(self):
         return self.user.get_full_name()
     

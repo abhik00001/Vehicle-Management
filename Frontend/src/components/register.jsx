@@ -145,7 +145,7 @@ export default function RegisterUser() {
 
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>Image</Form.Label>
-                        <Form.Control style={Input} accept='application/jpeg' name='image' type="file" onChange={(e) => setImage(e.target.files[0])} />
+                        <Form.Control style={Input} accept='.jpeg,.jpg,.png' name='image' type="file" onChange={(e) => setImage(e.target.files[0])} />
                     </Form.Group>
                 </div>
                 <hr />

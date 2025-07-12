@@ -9,8 +9,15 @@ export default function DriverUpdate() {
     const { driverID } = useParams()
     const navigate = useNavigate()
     const vehicles = JSON.parse(localStorage.getItem('vehicles'))
-    const [details, setDetails] = useState([])
-    
+    const [allData , setAlldata] = useState([])
+    const [details, setDetails] = useState({
+        address: '',
+        experience: '',
+        expiry: '',
+        license: null,
+        vehicle_assigned: ''
+    })
+
     // const [users, setUsers] = useState([])
     useEffect(() => {
         const fetchDriver = async () => {
@@ -21,8 +28,16 @@ export default function DriverUpdate() {
                         'Authorization': `Bearer ${access}`
                     }
                 })
-                setDetails(response.data.data)
+                const data = response.data.data
+                setAlldata(data);
                 
+                setDetails({
+                    address: data.address,
+                    experience: data.experience,
+                    expiry: data.license_exp,
+                    vehicle_assigned: data.vehicle_assigned?.id || ''
+                })
+
                 // console.log(response.data.data?.vehicle_assigned)
             } catch (error) {
                 if (error.response?.status === 401) {
@@ -32,6 +47,14 @@ export default function DriverUpdate() {
                             headers: {
                                 'Authorization': `Bearer ${newAccess}`
                             }
+                        })
+                        const data = response.data.data
+                        setAlldata(data)
+                        setDetails({
+                            address: data.address,
+                            experience: data.experience,
+                            expiry: data.expiry,
+                            vehicle_assigned: data.vehicle_assigned?.id
                         })
                     } else {
                         console.log('Access token is invalid')
@@ -46,29 +69,81 @@ export default function DriverUpdate() {
         fetchDriver()
     }, [driverID])
 
+    const handleUpdate = async (e) => {
+        e.preventDefault()
+        const access = localStorage.getItem('access')
+        const formData = new FormData()
+        formData.append('address', details.address)
+        formData.append('experience', details.experience)
+        formData.append('license_exp', details.expiry)
+        formData.append('vehicle_assigned', details.vehicle_assigned)
+        if (details.license){
+            formData.append('license', details.license)
+        }
+        try{
+            const response = await axios.put(`http://127.0.0.0.1:8000/api/drivers/${driverID}/update`,formData,{
+                headers:{
+                    'Authorization': `Bearer ${access}`,
+                }
+            })
+            console.log(response.data)
+            navigate("/home/drivers")
+        }catch (error){
+            if (error.response?.status === 401) {
+                const newAccess = await refreshAccessToken()
+                if (newAccess) {
+                    const response = await axios.put(`http://127.0.0.0.1:8000/api/drivers/${driverID}/update`,formData,{
+                        headers: {
+                            'Authorization': `Bearer ${newAccess}`
+                        }
+                    })
+                } else {
+                    console.log('retry unsuccessfull');
+                    localStorage.removeItem('access')
+                    navigate("/")
+                }
+            }else{
+                console.log(error)
+            }
+        }
+
+    }
+
+    console.log(details);
+
+    const handleInput = (e)=>{
+        setDetails((previous)=>({
+            ...previous,[e.target.name]:e.target.value
+        }))
+    }
+    const handleFileInput = (e)=>{
+        setDetails((previous)=>({
+            ...previous,[e.target.name]:e.target.files[0]
+        }))
+    }
 
     return (
         <div style={containerStyle} >
-            <Form style={loginForm} >
+            <Form style={loginForm} encType="multipart/form-data" onSubmit={handleUpdate} >
                 <h2 style={{ textAlign: "center", color: "#333333", }}>Update Driver Details</h2>
                 <hr />
 
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
 
 
-                    <img style={{ width: "25%" }} src={`http://localhost:8000/${details.user?.profile_image}`} />
+                    <img style={{ width: "25%" }} src={`http://localhost:8000/${allData.user?.profile_image}`} />
 
 
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>First Name</Form.Label>
-                        <Form.Control style={Input} type="text" name='first_name' value={details?.user?.first_name || ''} disabled />
+                        <Form.Control style={Input} type="text" name='first_name' value={allData?.user?.first_name || ''} disabled />
                     </Form.Group>
-            
+
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>First Name</Form.Label>
-                        <Form.Control style={Input} type="text" name='last_name' value={details.user?.last_name || ''} disabled />
+                        <Form.Control style={Input} type="text" name='last_name' value={allData.user?.last_name || ''} disabled />
                     </Form.Group>
-                    <div  style={{ width: '20%', alignItems:'center',marginTop:"2rem" }}>
+                    <div style={{ width: '20%', alignItems: 'center', marginTop: "2rem" }}>
                         <Button >Update User</Button>
                     </div>
                 </div>
@@ -77,18 +152,16 @@ export default function DriverUpdate() {
 
                     <Form.Group className="mb-3" >
                         <Form.Label style={label}>Vehicle Assign</Form.Label>
-                        <Form.Select style={Input} type="text" name='vehicle_assign'>
+                        <Form.Select style={Input} type="text" name='vehicle_assign' value={details.vehicle_assigned} onChange={handleInput} >
                             <option value="">-- Select Vehicle --</option>
                             {
                                 vehicles.map((item) =>
-                                    
-                                    <option key={item?.id} value={item?.id} disabled={item?.is_assigned === true}>{item?.vehicle_name} {console.log(!!item?.is_assigned)}
+
+                                    <option key={item?.id} value={item?.id} disabled={item?.is_assigned === true}>{item?.vehicle_name} 
                                     </option>
-                                    
-                                    
 
                                 )
-                                
+
                             }
 
                         </Form.Select>
@@ -99,23 +172,24 @@ export default function DriverUpdate() {
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <Form.Group className="mb-3" >
                         <Form.Label style={label}>Driving License</Form.Label>
-                        <Form.Control style={Input} accept="application/pdf" name='license' type="file" />
+                        <Form.Control style={Input} accept="application/pdf" name='license' type="file" onChange={handleFileInput} />
+                        <a >{allData.license?.split('/').pop()}</a>
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>License Expiry Date</Form.Label>
-                        <Form.Control style={Input} type="date" name='expiry' />
+                        <Form.Control style={Input} type="date" name='expiry' value={details.expiry} onChange={handleInput}/>
                     </Form.Group>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>Experience</Form.Label>
-                        <Form.Control style={Input} name='experience' type="number" />
+                        <Form.Control style={Input} name='experience' type="number" value={details.experience} onChange={handleInput} />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>Address</Form.Label>
-                        <Form.Control style={Input} name='address' type="text" />
+                        <Form.Control style={Input} name='address' type="text" value={details.address} onChange={handleInput} />
                     </Form.Group>
                 </div>
 
