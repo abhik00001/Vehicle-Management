@@ -7,10 +7,12 @@ import { refreshAccessToken } from '../authenticate/auth';
 
 export default function DriverUpdate() {
     const { driverID } = useParams()
+    const [profileID,setProfileID] = useState('')
     const navigate = useNavigate()
     const vehicles = JSON.parse(localStorage.getItem('vehicles'))
-    const [allData , setAlldata] = useState([])
+    const [allData, setAlldata] = useState([])
     const [details, setDetails] = useState({
+        user:'',
         address: '',
         experience: '',
         expiry: '',
@@ -29,13 +31,17 @@ export default function DriverUpdate() {
                     }
                 })
                 const data = response.data.data
-                setAlldata(data);
+                // console.log(data.id);
+                setProfileID(data.id)
                 
+                setAlldata(data);
+
                 setDetails({
+                    user: data.user?.id,
                     address: data.address,
                     experience: data.experience,
                     expiry: data.license_exp,
-                    vehicle_assigned: data.vehicle_assigned?.id || ''
+                    vehicle_assigned: data.vehicle_assigned?.id||''
                 })
 
                 // console.log(response.data.data?.vehicle_assigned)
@@ -49,8 +55,10 @@ export default function DriverUpdate() {
                             }
                         })
                         const data = response.data.data
+
                         setAlldata(data)
                         setDetails({
+                            user: data.user?.id,
                             address: data.address,
                             experience: data.experience,
                             expiry: data.expiry,
@@ -70,55 +78,59 @@ export default function DriverUpdate() {
     }, [driverID])
 
     const handleUpdate = async (e) => {
+        
         e.preventDefault()
         const access = localStorage.getItem('access')
         const formData = new FormData()
+        formData.append('user', details.user)
         formData.append('address', details.address)
         formData.append('experience', details.experience)
         formData.append('license_exp', details.expiry)
         formData.append('vehicle_assigned', details.vehicle_assigned)
-        if (details.license){
+        if (details.license) {
             formData.append('license', details.license)
         }
-        try{
-            const response = await axios.put(`http://127.0.0.0.1:8000/api/drivers/${driverID}/update`,formData,{
-                headers:{
+        try {
+            const response = await axios.put(`http://localhost:8000/api/drivers/${driverID}/update/${profileID}`, formData, {
+                headers: {
                     'Authorization': `Bearer ${access}`,
                 }
             })
-            console.log(response.data)
+            // console.log(response.data)
             navigate("/home/drivers")
-        }catch (error){
+        } catch (error) {
             if (error.response?.status === 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const response = await axios.put(`http://127.0.0.0.1:8000/api/drivers/${driverID}/update`,formData,{
+                    const response = await axios.put(`http://localhost:8000/api/drivers/${driverID}/update/${profileID}`, formData, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }
                     })
+                    // console.log(response.data)
+                    navigate("/home/drivers")
                 } else {
                     console.log('retry unsuccessfull');
                     localStorage.removeItem('access')
                     navigate("/")
                 }
-            }else{
+            } else {
                 console.log(error)
             }
         }
 
     }
 
-    console.log(details);
+    // console.log(details);
 
-    const handleInput = (e)=>{
-        setDetails((previous)=>({
-            ...previous,[e.target.name]:e.target.value
+    const handleInput = (e) => {
+        setDetails((previous) => ({
+            ...previous, [e.target.name]: e.target.value
         }))
     }
-    const handleFileInput = (e)=>{
-        setDetails((previous)=>({
-            ...previous,[e.target.name]:e.target.files[0]
+    const handleFileInput = (e) => {
+        setDetails((previous) => ({
+            ...previous, [e.target.name]: e.target.files[0]
         }))
     }
 
@@ -152,12 +164,12 @@ export default function DriverUpdate() {
 
                     <Form.Group className="mb-3" >
                         <Form.Label style={label}>Vehicle Assign</Form.Label>
-                        <Form.Select style={Input} type="text" name='vehicle_assign' value={details.vehicle_assigned} onChange={handleInput} >
+                        <Form.Select style={Input} type="text" name='vehicle_assigned' value={details.vehicle_assigned} onChange={handleInput} >
                             <option value="">-- Select Vehicle --</option>
                             {
                                 vehicles.map((item) =>
 
-                                    <option key={item?.id} value={item?.id} disabled={item?.is_assigned === true}>{item?.vehicle_name} 
+                                    <option key={item?.id} value={item?.id} >{item?.vehicle_name}
                                     </option>
 
                                 )
@@ -177,7 +189,7 @@ export default function DriverUpdate() {
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label style={label}>License Expiry Date</Form.Label>
-                        <Form.Control style={Input} type="date" name='expiry' value={details.expiry} onChange={handleInput}/>
+                        <Form.Control style={Input} type="date" name='expiry' value={details.expiry} onChange={handleInput} />
                     </Form.Group>
                 </div>
 

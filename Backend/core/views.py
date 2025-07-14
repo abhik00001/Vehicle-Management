@@ -245,6 +245,43 @@ def delete_user(request, userID):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_driver(request,user_id ,driver_id):
+    data = request.data
+    driver = DriversProfile.objects.get(id = driver_id)
+    
+    driver_serialize = DriverSerializer(driver , data = data , partial = True)
+
+    user = User.objects.get(id = user_id)
+    vehicleID = data.get('vehicle_assigned')
+    print(vehicleID)
+    
+    if driver_serialize.is_valid():
+        if vehicleID == '':
+            vehicle = Vehicle.objects.get(id = driver.vehicle_assigned.id)
+            vehicle.is_assigned = False
+            vehicle.save()
+            driver_serialize.save(updated_by = request.user,vehicle_assigned = None,user =user)
+            user.is_active = False
+            user.save()
+            return Response({'message': 'Driver updated successfully'}, status=status.HTTP_200_OK)
+        
+        elif vehicleID != '':
+            vehicle = Vehicle.objects.get(id = vehicleID)
+            driver_serialize.save(updated_by = request.user, vehicle_assigned = vehicle,user =user)
+            user.is_active = True
+            user.save()
+            vehicle.is_assigned = True
+            vehicle.save()
+            return Response({'message': 'Driver updated successfully'}, status=status.HTTP_200_OK)
+        
+        else:
+            return Response({"message":"INformation not valid"},status=status.HTTP_206_PARTIAL_CONTENT)
+    
+    return Response({'message': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+    
 
 #managers
     

@@ -10,6 +10,7 @@ urlpatterns = [
     path("drivers/",get_drivers),
     path("driver/register",add_driver),
     path('drivers/<int:driver_id>/', fetch_driver_detail, name='get_driver_detail'),
+    path('drivers/<int:user_id>/update/<int:driver_id>', update_driver , name='get_driver_detail'),
 
     path('managers/',get_managers),
     
