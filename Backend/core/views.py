@@ -13,6 +13,8 @@ from django.db.models import Q
 
 # Create your views here.
 
+# users 
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def register_user(request):
@@ -38,12 +40,45 @@ def register_user(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-# def get_tokens_for_user(user):
-#     refresh = RefreshToken.for_user(user)
-#     return {
-#         'refresh': str(refresh),
-#         'access': str(refresh.access_token),
-#         }
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def fetchUser(request,userId):
+    try:
+        user = User.objects.get(id = userId)
+        serializer = UserSerializer(user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except user.DoesNotExist:
+        return Response({'message:User Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_User(request,UserID):
+    try:
+        manager = User.objects.get(id = UserID)
+        manager.delete()
+        return Response({"message":"Manager deleted successfully"},status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"message":"Manager not found"},status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_user(request,userID):
+    try:
+        updated_data = request.data
+        print(updated_data)
+        user = User.objects.get(id = userID)
+        serializer = UserSerializer(user, data = updated_data , partial =True)
+        if serializer.is_valid():
+            serializer.save(updated_by = request.user)
+            
+            return Response({"message":"User updated successfully"},status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    except User.DoesNotExist:
+        return Response({"message":"User not found"},status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(["POST"])
 def login_user(request):
@@ -64,19 +99,7 @@ def login_user(request):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 
-@api_view(['POST'])
-def custom_token_refresh(request):
-    refresh_token = request.data.get('refresh')
-    try:
-        refresh = RefreshToken(refresh_token)
-        access = str(refresh.access_token)
-        
-        return Response({
-            'access': access
-        },status=status.HTTP_200_OK)
-    
-    except TokenError as e:
-        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -227,9 +250,9 @@ def fetch_driver_detail(request,driver_id):
     
     
 @api_view(['DELETE'])
-def delete_user(request, userID):
+def delete_driver(request, driverID):
     try:
-        user = User.objects.get(id=userID)
+        user = User.objects.get(id=driverID)
         driver_details = DriversProfile.objects.filter(user = user)
         for driver in driver_details:
             print(driver.vehicle_assigned)
@@ -293,3 +316,33 @@ def get_managers(request):
         Q(first_name__icontains=search)|Q(last_name__icontains=search)|Q(email__icontains=search))
     serializer = UserSerializer(data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_manager_detail(request,managerID):
+    try:
+        manager = User.objects.get(id=managerID)
+        user = User.objects.all()
+        userSerialize = UserSerializer(user,many = True)
+        serializer = UserSerializer(manager)
+        return Response({"data":serializer.data,'user':userSerialize.data}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"message":"Manager not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+# token 
+
+@api_view(['POST'])
+def custom_token_refresh(request):
+    refresh_token = request.data.get('refresh')
+    try:
+        refresh = RefreshToken(refresh_token)
+        access = str(refresh.access_token)
+        
+        return Response({
+            'access': access
+        },status=status.HTTP_200_OK)
+    
+    except TokenError as e:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+

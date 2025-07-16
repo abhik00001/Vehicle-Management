@@ -5,14 +5,18 @@ urlpatterns = [
 
     path("register/",register_user),
     path("login/",login_user),
-    path("user_delete/<int:userID>",delete_user),
+    path('fetchUser/<int:userId>',fetchUser),
+    path('delete_user/<int:UserID>',delete_User),
+    path('update_user/<int:userID>',update_user),
     
-    path("drivers/",get_drivers),
     path("driver/register",add_driver),
+    path("drivers/",get_drivers),
+    path("delete_driverUser/<int:driverID>",delete_driver),
     path('drivers/<int:driver_id>/', fetch_driver_detail, name='get_driver_detail'),
     path('drivers/<int:user_id>/update/<int:driver_id>', update_driver , name='get_driver_detail'),
 
     path('managers/',get_managers),
+    path('managers/<int:managerID>',get_manager_detail),
     
     path('dashboard/',dashboard),
     

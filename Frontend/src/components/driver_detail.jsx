@@ -60,7 +60,7 @@ export default function DriverDetail() {
     const deletehandle = async (e) => {
         const access = localStorage.getItem('access')
         try {
-            const response = await axios.delete(`http://localhost:8000/api/user_delete/${driverID}`, {
+            const response = await axios.delete(`http://localhost:8000/api/delete_driverUser/${driverID}`, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
                 }
@@ -71,7 +71,7 @@ export default function DriverDetail() {
             if (error.response?.status == 401) {
                 const newAccess = await refreshAccessToken();
                 if (newAccess) {
-                    const retry = await axios.delete(`http://localhost:8000/api/user_delete/${driverID}`, {
+                    const retry = await axios.delete(`http://localhost:8000/api/delete_driverUser/${driverID}`, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }

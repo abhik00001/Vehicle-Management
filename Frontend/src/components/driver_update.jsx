@@ -2,17 +2,17 @@ import Form from 'react-bootstrap/Form'
 import { Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { refreshAccessToken } from '../authenticate/auth';
 
 export default function DriverUpdate() {
     const { driverID } = useParams()
-    const [profileID,setProfileID] = useState('')
+    const [profileID, setProfileID] = useState('')
     const navigate = useNavigate()
     const vehicles = JSON.parse(localStorage.getItem('vehicles'))
     const [allData, setAlldata] = useState([])
     const [details, setDetails] = useState({
-        user:'',
+        user: '',
         address: '',
         experience: '',
         expiry: '',
@@ -33,7 +33,7 @@ export default function DriverUpdate() {
                 const data = response.data.data
                 // console.log(data.id);
                 setProfileID(data.id)
-                
+
                 setAlldata(data);
 
                 setDetails({
@@ -41,7 +41,7 @@ export default function DriverUpdate() {
                     address: data.address,
                     experience: data.experience,
                     expiry: data.license_exp,
-                    vehicle_assigned: data.vehicle_assigned?.id||''
+                    vehicle_assigned: data.vehicle_assigned?.id || ''
                 })
 
                 // console.log(response.data.data?.vehicle_assigned)
@@ -78,8 +78,8 @@ export default function DriverUpdate() {
     }, [driverID])
 
     const handleUpdate = async (e) => {
-        
-        e.preventDefault()
+
+         e.preventDefault(); 
         const access = localStorage.getItem('access')
         const formData = new FormData()
         formData.append('user', details.user)
@@ -87,7 +87,7 @@ export default function DriverUpdate() {
         formData.append('experience', details.experience)
         formData.append('license_exp', details.expiry)
         formData.append('vehicle_assigned', details.vehicle_assigned)
-        if (details.license) {
+        if (details.license ) {
             formData.append('license', details.license)
         }
         try {
@@ -156,7 +156,9 @@ export default function DriverUpdate() {
                         <Form.Control style={Input} type="text" name='last_name' value={allData.user?.last_name || ''} disabled />
                     </Form.Group>
                     <div style={{ width: '20%', alignItems: 'center', marginTop: "2rem" }}>
-                        <Button >Update User</Button>
+                        <Link to={ `/home/updateUser/${allData.user?.id}`}>
+                            <Button >Update User</Button>
+                        </Link>
                     </div>
                 </div>
                 <hr />

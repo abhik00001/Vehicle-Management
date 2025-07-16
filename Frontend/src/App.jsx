@@ -4,16 +4,18 @@ import ForgotPage from './components/forgot'
 import LoginPage from './components/login'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import Vehicles from './components/vehicles'
-import Managers from './components/manager'
+import Managers from './components/managers'
 import Driver from './components/drivers'
 import { isAuthenticated } from './authenticate/auth'
 import { ProtectedRoute } from './authenticate/protected_route'
 import LayoutHeader from './components/layoutHeader'
 import DriverDetail from './components/driver_detail'
-import RegisterUser from './components/register'
+import RegisterUser from './components/user_register'
 import RegisterDriverProfile from './components/driver_profile'
 import AddVehicle from './components/vehicle_add'
 import DriverUpdate from './components/driver_update'
+import ManagerDetail from './components/manager_detail'
+import Update_User from './components/user_update'
 
 
 
@@ -37,7 +39,11 @@ function App() {
             <Route path='addvehicle' element={<AddVehicle />} />
 
             <Route path='registerUser' element={<RegisterUser />} />
+            <Route path='updateUser/:userId' element={<Update_User/>}/>
+
             <Route path='managers' element={<Managers />} />
+            <Route path='managers/:managerID' element={<ManagerDetail />} />
+
 
             <Route path='drivers' element={<Driver />} />
             <Route path='drivers/:driverID' element={<DriverDetail />} />

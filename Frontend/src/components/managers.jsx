@@ -92,7 +92,7 @@ export default function Managers() {
                                             </Card.Text>
                                             <div style={{ textAlign: "center" }}>
 
-                                                <Link >
+                                                <Link to={`${manager.id}`} >
                                                     <Button variant="primary">
                                                         Details
                                                     </Button>
