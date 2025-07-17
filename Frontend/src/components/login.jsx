@@ -47,7 +47,7 @@ function LoginPage() {
                 <Button className='mb-3' variant="primary" type="submit" style={button}>
                     Submit
                 </Button>
-                <p style={{ textAlign: "center" }}><Link to={"forgot_password"}>Forgot Password?</Link></p>
+                <p style={{ textAlign: "center" }}><Link to={"/forgot_password"}>Forgot Password?</Link></p>
             </Form>
         </div>
     );

@@ -21,7 +21,7 @@ export default function Dashboard() {
                 })
 
                 setUserData(response.data)
-                console.log(response.data);
+                // console.log(response.data);
 
 
                 setLoading(false)
@@ -55,7 +55,7 @@ export default function Dashboard() {
         fetchDashboard()
 
     }, [])
-    console.log(userData);
+    // console.log(userData);
 
     const role = userData?.user?.role
 

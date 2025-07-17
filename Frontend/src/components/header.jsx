@@ -2,7 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import "../css/header.css"
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -39,8 +39,10 @@ export default function Header() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu style={{ left: "-10px " }}>
+                                <p style={{paddingLeft:'18px',textTransform:'uppercase',margin:0 , color:'darkgray'   }} aria-disabled>{user?.username}</p>
+                                <hr style={{margin:2}}/>
                                 <Dropdown.Item to="#/action-1">My Profile</Dropdown.Item>
-                                <Dropdown.Item to="#/action-2">Change Password</Dropdown.Item>
+                                <Dropdown.Item as={Link} to={"passwordChange"}>Change Password</Dropdown.Item>
                                 <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>

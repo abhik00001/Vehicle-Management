@@ -97,9 +97,31 @@ def login_user(request):
             },status= status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def password_Change(request):
+        # user = User.objects.filter(username = request.user).first()
+        user = request.user
+        current = request.data.get('current')
+        new = request.data.get('new')
+        confirm = request.data.get('confirm')
+        print(user,current,new,confirm)
+        if not user.check_password(current):
+            print("no current match")
+            return Response({"error": "Current password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+        if new != confirm:
+            print("no confirm match")
+            return Response({"error": "New password and confirm password do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        elif new == confirm:
+            user.set_password(new)
+            user.save()
+        return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
     
 
 
+# Dashboard
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

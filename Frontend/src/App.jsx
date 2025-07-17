@@ -1,6 +1,6 @@
 import './App.css'
 import Dashboard from './components/dashboard'
-import ForgotPage from './components/forgot'
+import ForgotPage from './components/password_forgot'
 import LoginPage from './components/login'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import Vehicles from './components/vehicles'
@@ -16,6 +16,7 @@ import AddVehicle from './components/vehicle_add'
 import DriverUpdate from './components/driver_update'
 import ManagerDetail from './components/manager_detail'
 import Update_User from './components/user_update'
+import PasswordChange from './components/password_change'
 
 
 
@@ -28,7 +29,7 @@ function App() {
             isAuthenticated() ? <Navigate to="/home" /> : <Navigate to="/login_page" />
           } />
           <Route path="/login_page" element={<LoginPage />} />
-          <Route path="forgot_password" element={<ForgotPage />} />
+          <Route path="/forgot_password" element={<ForgotPage />} />
           <Route path="/home" element={
             <ProtectedRoute>
               <LayoutHeader />
@@ -40,6 +41,7 @@ function App() {
 
             <Route path='registerUser' element={<RegisterUser />} />
             <Route path='updateUser/:userId' element={<Update_User/>}/>
+            <Route path='passwordChange' element={<PasswordChange/>}/>
 
             <Route path='managers' element={<Managers />} />
             <Route path='managers/:managerID' element={<ManagerDetail />} />
