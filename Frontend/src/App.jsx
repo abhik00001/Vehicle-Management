@@ -17,6 +17,8 @@ import DriverUpdate from './components/driver_update'
 import ManagerDetail from './components/manager_detail'
 import Update_User from './components/user_update'
 import PasswordChange from './components/password_change'
+import MyProfile from './components/my_profile'
+import MyProfileUpdate from './components/my_profile_update'
 
 
 
@@ -42,6 +44,8 @@ function App() {
             <Route path='registerUser' element={<RegisterUser />} />
             <Route path='updateUser/:userId' element={<Update_User/>}/>
             <Route path='passwordChange' element={<PasswordChange/>}/>
+            <Route path='MyProfile' element={<MyProfile/>}/>
+            <Route path='MyProfileUpdate' element={<MyProfileUpdate/>}/>
 
             <Route path='managers' element={<Managers />} />
             <Route path='managers/:managerID' element={<ManagerDetail />} />

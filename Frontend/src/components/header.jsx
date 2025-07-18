@@ -41,7 +41,7 @@ export default function Header() {
                             <Dropdown.Menu style={{ left: "-10px " }}>
                                 <p style={{paddingLeft:'18px',textTransform:'uppercase',margin:0 , color:'darkgray'   }} aria-disabled>{user?.username}</p>
                                 <hr style={{margin:2}}/>
-                                <Dropdown.Item to="#/action-1">My Profile</Dropdown.Item>
+                                <Dropdown.Item as={Link} to="Myprofile">My Profile</Dropdown.Item>
                                 <Dropdown.Item as={Link} to={"passwordChange"}>Change Password</Dropdown.Item>
                                 <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                             </Dropdown.Menu>

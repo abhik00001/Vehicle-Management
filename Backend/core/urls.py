@@ -9,6 +9,7 @@ urlpatterns = [
     path('delete_user/<int:UserID>',delete_User),
     path('update_user/<int:userID>',update_user),
     path('passwordChange/',password_Change),
+    path('updateProfile/',updateProfile),
     
     path("driver/register",add_driver),
     path("drivers/",get_drivers),

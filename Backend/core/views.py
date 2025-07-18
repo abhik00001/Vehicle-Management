@@ -119,7 +119,19 @@ def password_Change(request):
             user.save()
         return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
     
-
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def updateProfile(request):
+    user = request.user
+    data = request.data
+    # print(user,data)
+    serializer = UserSerializer(user, data = data , partial = True)
+    if serializer.is_valid():
+        print('done')
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 # Dashboard
 
