@@ -1,3 +1,4 @@
+import uuid
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from .serializers import *
 # from django.contrib.auth import authenticate,login,logout 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+
 
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -97,7 +99,33 @@ def login_user(request):
             },status= status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def userProfile(request):
+    try:
+        print(request.user)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"message":"User not found"},status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def updateProfile(request):
+    user = request.user
+    data = request.data
+    print(user,data)
+    serializer = UserSerializer(user, data = data , partial = True)
+    if serializer.is_valid():
+        print('done')   
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -119,19 +147,20 @@ def password_Change(request):
             user.save()
         return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
     
-@api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
-def updateProfile(request):
-    user = request.user
-    data = request.data
-    # print(user,data)
-    serializer = UserSerializer(user, data = data , partial = True)
-    if serializer.is_valid():
-        print('done')
-        serializer.save()
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def passwordForgot(request):
+    email = request.data.get('email')
+    user = User.objects.filter(email = email).first()
+    print(email)
+    if user:
+        token = str(uuid.uuid4())
+        user.reset_token = token
+        print(token)
+        # user.save()
+        # send_email(user,token)
+        # return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+    return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 # Dashboard
 

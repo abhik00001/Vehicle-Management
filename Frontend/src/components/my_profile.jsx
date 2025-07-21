@@ -1,16 +1,54 @@
 import { Button } from "react-bootstrap";
 import MyProfileUpdate from "./my_profile_update";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { refreshAccessToken } from "../authenticate/auth";
+import axios from "axios";
 
 export default function MyProfile() {
-    const user = JSON.parse(localStorage.getItem('user'))
-    const [updateBox, setUpdateBox] = useState(false)
+    const [user, setUser] = useState([])
+    // const [updateBox, setUpdateBox] = useState(false)
     const navigate = useNavigate()
-
+    useEffect(() => {
+        const token = localStorage.getItem('access')
+        const getUser = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/user/profile/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                // console.log(response.data);
+                
+                setUser(response.data)
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    const newToken = await refreshAccessToken()
+                    if (newToken) {
+                        const response = await axios.get('http://localhost:8000/api/user/Profile/', {
+                            headers: {
+                                'Authorization': `Bearer ${newToken}`
+                            }
+                        })
+                        setUser(response.data)
+                    }else{
+                        console.log('refresh token fail');
+                        localStorage.removeItem('access')
+                        navigate('/')
+                        
+                    }
+                }else{
+                    console.log(error)
+                }
+            }
+        }
+        getUser()
+    },[])
     const handleButton = () => {
         navigate('/home/MyProfileUpdate')
     }
+    // console.log(user);
+
 
     return (
         <>

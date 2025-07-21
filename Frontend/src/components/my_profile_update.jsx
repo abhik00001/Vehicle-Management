@@ -1,23 +1,60 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
 
 export default function MyProfileUpdate() {
-    const user = JSON.parse(localStorage.getItem('user'))
+    const [userDetail, setUserDetail] = useState([])
     const navigate = useNavigate()
-    const [userDetail, setUserDetail] = useState({
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        date_of_birth: user.date_of_birth,
-    })
+    useEffect(() => {
+        const token = localStorage.getItem('access')
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/user/profile/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                setUserDetail(response.data)
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    const newToken = await refreshAccessToken()
+                    if (newToken) {
+                        const response = await axios.get('http://127.0.0.1:8000/api/user/profile/', {
+                            headers: {
+                                'Authorization': `Bearer ${newToken}`
+                            }
+                        })
+                        setUserDetail(response.data)
+                    } else {
+                        localStorage.removeItem('access')
+                        navigate('/login')
+                    }
+                } else {
+                    console.log(error)
+                }
+            }
+        }
+        fetchData()
+    }, [])
+    // console.log(user);
+    
+    // const [userDetail, setUserDetail] = useState({
+    //     first_name: user.first_name,
+    //     last_name: user.last_name,
+    //     email: user.email,
+    //     date_of_birth: user.date_of_birth,
+    // })
+    console.log(userDetail);
+    
     const [image, setImage] = useState(null)
     const handleInput = (e) => {
         setUserDetail({ ...userDetail, [e.target.name]: e.target.value })
     }
+
+
 
     const handleCancel = () => {
         navigate('/home/MyProfile')
@@ -55,12 +92,12 @@ export default function MyProfileUpdate() {
                     })
                     alert('Data Change Successfully')
                     navigate('/home/MyProfile')
-                }else{
+                } else {
                     console.log('refresh unsuccessful');
                     localStorage.removeItem('access')
-                    navigate('/')                    
+                    navigate('/')
                 }
-            }else{
+            } else {
                 console.log(error);
 
             }
