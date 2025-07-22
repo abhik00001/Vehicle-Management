@@ -4,34 +4,23 @@ import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { Link } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
-export default function ForgotPage(){
+export default function ForgotPage() {
     const [email, setEmail] = useState("");
-    const handleSubmit = async ()=>{
-        const token = localStorage.getItem('access')
-        try{
-            const response = await axios.post('http://localhost:8000/api/user/forgotPassword/',{email})
-        }catch (error){
-            if (error.response?.status ===401){
-                const newToken = await refreshAccessToken()
-                if (newToken){
-                    const response = await axios.post('http://localhost:8000/api/user/forgotPassword/',{email})
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8000/api/user/forgotPassword/', { email })
+            alert(response.data.message);
+        } catch (error) {
+            console.log(error);
 
-                }else{
-                    console.log('Refresh token unsuccessful');
-                    localStorage.removeItem('access')
-                    window.location.href('/')
-                }
-
-            }else{
-                console.log(error);
-                
-            }
         }
     }
-      return (
+    return (
         <div style={containerStyle} >
             <Form style={passwordForm} onSubmit={handleSubmit}>
-                <h2 style={{ textAlign: "center", color: "#333333", }}>LOGIN</h2>
+                <h2 style={{ textAlign: "center", color: "#333333", }}>Forgot Password</h2>
+                <hr />
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label style={label}>Email address</Form.Label>
                     <Form.Control style={Input} type="email" value={email} placeholder="Enter email" onChange={(e) => setEmail(e.target.value)} />
@@ -40,8 +29,8 @@ export default function ForgotPage(){
                 <Button className='mb-3' variant="primary" type="submit" style={button}>
                     Submit
                 </Button>
-                
-                <p style={{textAlign:"center"}}><Link to={"/"}>Back</Link></p>
+
+                <p style={{ textAlign: "center" }}><Link to={"/"}>Back</Link></p>
             </Form>
         </div>
     );

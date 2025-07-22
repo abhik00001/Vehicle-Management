@@ -19,6 +19,7 @@ import Update_User from './components/user_update'
 import PasswordChange from './components/password_change'
 import MyProfile from './components/my_profile'
 import MyProfileUpdate from './components/my_profile_update'
+import PasswordReset from './components/password_reset'
 
 
 
@@ -31,7 +32,11 @@ function App() {
             isAuthenticated() ? <Navigate to="/home" /> : <Navigate to="/login_page" />
           } />
           <Route path="/login_page" element={<LoginPage />} />
-          <Route path="/forgot_password" element={<ForgotPage />} />
+          <Route path="/forgot_password/" element={<ForgotPage />} />
+          <Route path='reset_password/:uid/:token' element={<PasswordReset/>}/>
+
+          {/* dashboard */}
+          
           <Route path="/home" element={
             <ProtectedRoute>
               <LayoutHeader />

@@ -11,6 +11,7 @@ urlpatterns = [
     
     path('user/profile/',userProfile),
     path('user/forgotPassword/',passwordForgot),
+    path('user/resetPassword/',passwordReset),
     path('updateProfile/',updateProfile),
     path('passwordChange/',password_Change),
     

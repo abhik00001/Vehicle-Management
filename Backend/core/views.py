@@ -1,4 +1,5 @@
 import uuid
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +14,10 @@ from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import authenticate
 from django.db.models import Q
 
+from django.utils.encoding import force_bytes,smart_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
 # Create your views here.
 
 # users 
@@ -21,6 +26,7 @@ from django.db.models import Q
 @permission_classes([IsAuthenticated])
 def register_user(request):
     if request.method == 'POST':
+        print(request.data)
         serializer = UserSerializer(data = request.data)
         vehicles = Vehicle.objects.all()
         vehicle_data = VehicleSerializer(vehicles, many=True)
@@ -150,16 +156,48 @@ def password_Change(request):
 @api_view(['POST'])
 def passwordForgot(request):
     email = request.data.get('email')
-    user = User.objects.filter(email = email).first()
     print(email)
+    user = User.objects.get(email = email)
     if user:
-        token = str(uuid.uuid4())
-        user.reset_token = token
+        # token = str(uuid.uuid4())
+        uid = urlsafe_base64_encode(force_bytes(user.id))
+        print(uid)
+        token = PasswordResetTokenGenerator().make_token(user)
         print(token)
+        link = f"http://localhost:5173/reset_password/{uid}/{token}"
+        print(link)
+        # user.reset_token = token
         # user.save()
-        # send_email(user,token)
-        # return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+        subject = "Request To Forgot Password"
+        message = f"Hello {user.first_name},\n\nUse the link below to reset your password:\n{link}\n\n.If you didn't request this, please ignore this email."
+        from_email = settings.EMAIL_HOST_USER
+        to_email =[user.email]
+        
+        send_mail(subject,message,from_email,to_email,fail_silently=False)
+        return Response({"message": "Email sent successfully","token":token}, status=status.HTTP_200_OK)
     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def passwordReset(request):
+    passwords = request.data.get('passwords')
+    uid = request.data.get('uid')
+    token = request.data.get('token')
+    new_password = passwords.get('new')
+    confirm_password = passwords.get('confirm')
+    if new_password != confirm_password:
+        print('password not match')
+        return Response({"error": "New password and confirm password do not match"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user_id = smart_str(urlsafe_base64_decode(uid))
+        user = User.objects.get(id=user_id)
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+    except :
+        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 # Dashboard

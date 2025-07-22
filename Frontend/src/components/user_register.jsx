@@ -55,10 +55,10 @@ export default function RegisterUser() {
             })
             // data = response.data
             console.log(response.data.data?.id)
-            const v= localStorage.setItem('vehicles',JSON.stringify(response.data.vehicle))
-            const d= localStorage.setItem('driver',JSON.stringify(response.data.data))
+            const v = localStorage.setItem('vehicles', JSON.stringify(response.data.vehicle))
+            const d = localStorage.setItem('driver', JSON.stringify(response.data.data))
             console.log(d);
-            
+
             setLoading(false)
             if (formData.role == 'manager') {
                 navigate('/home/managers')
@@ -99,8 +99,9 @@ export default function RegisterUser() {
 
 
     const userRole = user.role
-    
-    
+
+    console.log(formData);
+
 
     return (
         <div style={containerStyle} >
@@ -112,8 +113,9 @@ export default function RegisterUser() {
                     <Form.Group className="mb-3" style={{ marginTop: "auto" }}>
                         <Form.Label style={label}>Role</Form.Label>
                         <select name='role' onChange={inputValue} >
+                        <option value="">Select Role</option>
                             {
-                            userRole === 'admin' ? <option value="admin">Admin</option> : null
+                                userRole === 'admin' ? <option value="admin">Admin</option> : null
                             }
                             <option value="manager">Manager</option>
                             <option value="driver">Driver</option>
