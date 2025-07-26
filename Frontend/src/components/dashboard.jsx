@@ -113,7 +113,16 @@ export default function Dashboard() {
                         (role == "driver") && (
                             <div style={total_container}>
                                 <span>Vehicle Assigned : {
-                                    userData?.driver_profile?.vehicle_assigned ? userData?.driver_profile?.vehicle_assigned?.vehicle_name : "No Vehicle Assigned"
+                                    userData?.driver_profile?.vehicle_assigned ?
+                                        <div>
+                                            <span><img src={`http://localhost:8000/${userData?.driver_profile?.vehicle_assigned?.vehicle_photos}`} style={{ width: '30', height: '90px',margin:'20px 0 0 20px',}} /></span>
+                                            <div style={{ width: 'fit-content', display: 'flex', justifyContent: 'space-evenly', margin: '30px', flexWrap: 'wrap' }}>
+                                                <span style={{padding:'0 0 0 20px'}}>Vehicle Name: {userData?.driver_profile?.vehicle_assigned?.vehicle_name}</span>
+                                                <span style={{padding:'0 0 0 20px'}}>Vehicle Model: {userData?.driver_profile?.vehicle_assigned?.vehicle_model}</span>
+                                                <span style={{padding:'0 0 0 20px'}}>Vehicle Registration: {userData?.driver_profile?.vehicle_assigned?.vehicle_registration}</span>
+                                            </div>
+                                        </div>
+                                        : "No Vehicle Assigned"
                                 }</span>
                             </div>
                         )
