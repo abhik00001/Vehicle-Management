@@ -21,7 +21,7 @@ class User(AbstractUser,PermissionsMixin):
     created_by = models.ForeignKey("self", on_delete=models.CASCADE, related_name='created_user', null=True, blank=True)
     updated_by = models.ForeignKey("self", on_delete=models.CASCADE, related_name='updated_user', null=True, blank=True)
     
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     joined_on = models.DateTimeField(auto_now_add=True)
     
     
