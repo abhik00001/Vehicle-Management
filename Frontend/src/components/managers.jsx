@@ -5,6 +5,7 @@ import Card from 'react-bootstrap/Card';
 import { Link, useNavigate } from 'react-router';
 import { refreshAccessToken } from '../authenticate/auth';
 import '../css/vehicles.css'
+import api, { MyBaseUrl } from '../Api';
 
 
 
@@ -18,7 +19,7 @@ export default function Managers() {
     async function getManagers(search = '') {
         const access = localStorage.getItem('access')
         try {
-            const response = await axios.get(`http://localhost:8000/api/managers/?search=${search}`, {
+            const response = await api.get(`api/managers/?search=${search}`, {
                 headers: {
                     'Authorization': `Bearer ${access}`
                 }
@@ -29,7 +30,7 @@ export default function Managers() {
             if (error.response?.status == 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const retry = await axios.get('http://localhost:8000/api/managers/', {
+                    const retry = await api.get('api/managers/', {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }
@@ -84,7 +85,7 @@ export default function Managers() {
                                 return (
 
                                     <Card key={index} style={{ width: '20rem', marginBottom: "10px" }}>
-                                        <Card.Img variant="top" src={`http://localhost:8000${manager.profile_image}`} />
+                                        <Card.Img variant="top" src={`${MyBaseUrl}${manager.profile_image}`} />
                                         <Card.Body>
                                             <Card.Title style={{ textTransform: "capitalize", textAlign: "center" }}>{manager.first_name} {manager.last_name}</Card.Title>
                                             <Card.Text>

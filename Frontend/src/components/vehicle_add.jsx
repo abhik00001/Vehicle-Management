@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { Link, useNavigate, useParams } from 'react-router';
 import axios from 'axios';
 import { refreshAccessToken } from '../authenticate/auth';
+import api from '../Api';
 
 export default function AddVehicle() {
 
@@ -37,7 +38,7 @@ export default function AddVehicle() {
         }
         const access = localStorage.getItem('access')
         try {
-            const response = await axios.post('http://localhost:8000/api/vehicle/register', AllData, {
+            const response = await api.post('api/vehicle/register', AllData, {
                 headers: {
                     Authorization: `Bearer ${access}`,
                     // ContentType: "multipart/form-data"
@@ -50,7 +51,7 @@ export default function AddVehicle() {
             if (error.response?.status == 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const retry = await axios.post('http://localhost:8000/api/vehicle/register', AllData, {
+                    const retry = await api.post('api/vehicle/register', AllData, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`,
                             // 'Content-Type': "multipart/form-data"

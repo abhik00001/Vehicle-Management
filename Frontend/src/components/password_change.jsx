@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
+import api from "../Api";
 export default function PasswordChange() {
     const navigate = useNavigate()
     const [passwords, setPasswords] = useState({
@@ -23,7 +24,7 @@ export default function PasswordChange() {
         const access = localStorage.getItem('access')
         
         try {
-            const response = await axios.post('http://localhost:8000/api/passwordChange/', passwords, {
+            const response = await api.post('api/passwordChange/', passwords, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
                 }
@@ -34,7 +35,7 @@ export default function PasswordChange() {
             if (error.response?.status === 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const response = await axios.post('http://localhost:8000/api/passwordChange/', passwords, {
+                    const response = await api.post('api/passwordChange/', passwords, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`,
                         }

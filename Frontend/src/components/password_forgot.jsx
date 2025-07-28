@@ -4,12 +4,14 @@ import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { Link } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
+import api from "../Api";
 export default function ForgotPage() {
+    
     const [email, setEmail] = useState("");
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/api/user/forgotPassword/', { email })
+            const response = await api.post('api/user/forgotPassword/', { email })
             alert(response.data.message);
         } catch (error) {
             console.log(error);

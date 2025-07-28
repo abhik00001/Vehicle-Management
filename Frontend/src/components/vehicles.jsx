@@ -5,6 +5,7 @@ import Card from 'react-bootstrap/Card';
 import '../css/vehicles.css'
 import { refreshAccessToken } from '../authenticate/auth'
 import { Link, useNavigate } from 'react-router';
+import api, { MyBaseUrl } from '../Api';
 
 
 export default function Vehicles() {
@@ -17,7 +18,7 @@ export default function Vehicles() {
     async function fetchVehicles(value = '') {
         try {
             const access_token = localStorage.getItem('access')
-            const response = await axios.get(`http://127.0.0.1:8000/api/vehicles/?search=${value}`, {
+            const response = await api.get(`api/vehicles/?search=${value}`, {
                 headers: {
                     Authorization: `Bearer ${access_token}`,
                 }
@@ -33,7 +34,7 @@ export default function Vehicles() {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
                     try {
-                        const retry = await axios.get(`http://127.0.0.1:8000/api/vehicles/?search=${value}`, {
+                        const retry = await api.get(`api/vehicles/?search=${value}`, {
                             headers: {
                                 Authorization: `Bearer ${newAccess}`,
                             }
@@ -69,7 +70,7 @@ export default function Vehicles() {
     async function deletehandle(vehicleID, vehicleName) {
         const access = localStorage.getItem('access')
         try {
-            const res = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`, {
+            const res = await api.delete(`api/delete_vehicle/${vehicleID}`, {
                 headers: {
                     Authorization: `Bearer ${access}`
                 }
@@ -80,7 +81,7 @@ export default function Vehicles() {
             if (error.res?.status == 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const retry = await axios.delete(`http://localhost:8000/api/delete_vehicle/${vehicleID}`, {
+                    const retry = await api.delete(`api/delete_vehicle/${vehicleID}`, {
                         headers: {
                             Authorization: `Bearer ${newAccess}`
                         }
@@ -129,7 +130,7 @@ export default function Vehicles() {
                             const addedBy = users.find((user) => user.id === vehicle.created_by);
                             return (
                                 <Card key={index} >
-                                    <Card.Img variant="top" style={{ width: "100%", height: "80%" }} src={`http://127.0.0.1:8000${vehicle.vehicle_photos}`} />
+                                    <Card.Img variant="top" style={{ width: "100%", height: "80%" }} src={`${MyBaseUrl}${vehicle.vehicle_photos}`} />
                                     <Card.Body>
                                         <Card.Title style={{ textAlign: "center", textTransform: "capitalize" }}>{vehicle.vehicle_name}</Card.Title>
 

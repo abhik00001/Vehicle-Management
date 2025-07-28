@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
+import api from "../Api";
 
 export default function MyProfileUpdate() {
     const [userDetail, setUserDetail] = useState([])
@@ -12,7 +13,7 @@ export default function MyProfileUpdate() {
         const token = localStorage.getItem('access')
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/user/profile/', {
+                const response = await api.get('api/user/profile/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -22,7 +23,7 @@ export default function MyProfileUpdate() {
                 if (error.response?.status === 401) {
                     const newToken = await refreshAccessToken()
                     if (newToken) {
-                        const response = await axios.get('http://127.0.0.1:8000/api/user/profile/', {
+                        const response = await api.get('api/user/profile/', {
                             headers: {
                                 'Authorization': `Bearer ${newToken}`
                             }
@@ -72,7 +73,7 @@ export default function MyProfileUpdate() {
             formData.append('profile_image', image)
         }
         try {
-            const response = await axios.patch(`http://localhost:8000/api/updateProfile/`, formData, {
+            const response = await api.patch(`api/updateProfile/`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
                     'Content-Type': 'multipart/form-data',
@@ -84,7 +85,7 @@ export default function MyProfileUpdate() {
             if (error.response?.status === 401) {
                 const newToken = await refreshAccessToken()
                 if (newToken) {
-                    const response = await axios.patch(`http://localhost:8000/api/updateProfile/`, formData, {
+                    const response = await api.patch(`api/updateProfile/`, formData, {
                         headers: {
                             'Authorization': `Bearer ${newToken}`,
                             'Content-Type': 'multipart/form-data',

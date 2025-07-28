@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from 'react-router';
 import { refreshAccessToken } from '../authenticate/auth';
+import api, { MyBaseUrl } from '../Api';
 
 export default function DriverUpdate() {
     const { driverID } = useParams()
@@ -91,7 +92,7 @@ export default function DriverUpdate() {
             formData.append('license', details.license)
         }
         try {
-            const response = await axios.put(`http://localhost:8000/api/drivers/${driverID}/update/${profileID}`, formData, {
+            const response = await api.put(`api/drivers/${driverID}/update/${profileID}`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
                 }
@@ -102,7 +103,7 @@ export default function DriverUpdate() {
             if (error.response?.status === 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const response = await axios.put(`http://localhost:8000/api/drivers/${driverID}/update/${profileID}`, formData, {
+                    const response = await api.put(`api/drivers/${driverID}/update/${profileID}`, formData, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }
@@ -143,7 +144,7 @@ export default function DriverUpdate() {
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
 
 
-                    <img style={{ width: "25%" }} src={`http://localhost:8000/${allData.user?.profile_image}`} />
+                    <img style={{ width: "25%" }} src={`${MyBaseUrl}${allData.user?.profile_image}`} />
 
 
                     <Form.Group className="mb-3">

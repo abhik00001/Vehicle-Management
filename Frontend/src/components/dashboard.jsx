@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { refreshAccessToken } from "../authenticate/auth"
 import { useNavigate } from "react-router"
 import axios from "axios"
+import api from "../Api"
 
 
 export default function Dashboard() {
@@ -14,7 +15,7 @@ export default function Dashboard() {
         const fetchDashboard = async () => {
             try {
 
-                const response = await axios.get("http://localhost:8000/api/dashboard", {
+                const response = await api.get("api/dashboard", {
                     headers: {
                         Authorization: `Bearer ${access}`
                     }
@@ -31,7 +32,7 @@ export default function Dashboard() {
                     const refresh_token = await refreshAccessToken()
                     if (refresh_token) {
                         try {
-                            const retry = await axios.get("http://localhost:8000/api/dashboard", {
+                            const retry = await api.get("dashboard", {
                                 headers: {
                                     Authorization: `Bearer ${refresh_token}`
                                 }

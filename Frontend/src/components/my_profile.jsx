@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
 import axios from "axios";
+import api, { MyBaseUrl } from "../Api";
 
 export default function MyProfile() {
     const [user, setUser] = useState([])
@@ -13,7 +14,7 @@ export default function MyProfile() {
         const token = localStorage.getItem('access')
         const getUser = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/user/profile/', {
+                const response = await api.get('api/user/profile/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -25,7 +26,7 @@ export default function MyProfile() {
                 if (error.response?.status === 401) {
                     const newToken = await refreshAccessToken()
                     if (newToken) {
-                        const response = await axios.get('http://localhost:8000/api/user/Profile/', {
+                        const response = await api.get('api/user/Profile/', {
                             headers: {
                                 'Authorization': `Bearer ${newToken}`
                             }
@@ -63,7 +64,7 @@ export default function MyProfile() {
                 } */}
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", }}>
                     <div style={detail}>
-                        <span ><img src={`http://localhost:8000/${user.profile_image}`} /></span>
+                        <span ><img src={`${MyBaseUrl}${user.profile_image}`} /></span>
 
                         <div style={{
                             display: "flex",

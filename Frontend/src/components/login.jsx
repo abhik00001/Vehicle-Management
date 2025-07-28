@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link, useNavigate } from 'react-router';
 import axios from 'axios';
+import api from '../Api';
 
 function LoginPage() {
     const [email, setEmail] = useState("")
@@ -14,7 +15,7 @@ function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://127.0.0.1:8000/api/login/", {email, password}, {
+            const res = await api.post("api/login/", {email, password}, {
                 headers: {
                     'Content-Type': 'application/json'
                 }

@@ -6,6 +6,7 @@ import { refreshAccessToken } from '../authenticate/auth';
 import '../css/vehicles.css'
 import { useNavigate, useParams } from 'react-router';
 import '../css/vehicles.css'
+import api, { MyBaseUrl } from '../Api';
 
 export default function DriverDetail() {
     const { driverID } = useParams()
@@ -18,7 +19,7 @@ export default function DriverDetail() {
         const fetchDriver = async () => {
             const access = localStorage.getItem('access')
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/drivers/${driverID}/`, {
+                const response = await api.get(`api/drivers/${driverID}/`, {
                     headers: {
                         'Authorization': `Bearer ${access}`
                     }
@@ -32,7 +33,7 @@ export default function DriverDetail() {
                     const newAccess = await refreshAccessToken();
                     if (newAccess) {
                         try {
-                            const retry = await axios.get(`http://127.0.0.1.1:8000/api/drivers/${driverID}/`, {
+                            const retry = await api.get(`api/drivers/${driverID}/`, {
                                 headers: {
                                     'Authorization': `Bearer ${newAccess}`
                                 }
@@ -60,7 +61,7 @@ export default function DriverDetail() {
     const deletehandle = async (e) => {
         const access = localStorage.getItem('access')
         try {
-            const response = await axios.delete(`http://localhost:8000/api/delete_driverUser/${driverID}`, {
+            const response = await api.delete(`api/delete_driverUser/${driverID}`, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
                 }
@@ -71,7 +72,7 @@ export default function DriverDetail() {
             if (error.response?.status == 401) {
                 const newAccess = await refreshAccessToken();
                 if (newAccess) {
-                    const retry = await axios.delete(`http://localhost:8000/api/delete_driverUser/${driverID}`, {
+                    const retry = await api.delete(`api/delete_driverUser/${driverID}`, {
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }
@@ -110,7 +111,7 @@ export default function DriverDetail() {
                             error ? <h4>Driver Detail Not exist</h4> :
                                 <div >
                                     <div style={detail}>
-                                        <span><img src={`http://localhost:8000/${driver.user?.profile_image}`} /></span>
+                                        <span><img src={`${MyBaseUrl}${driver.user?.profile_image}`} /></span>
                                         <span>Name : {driver.user?.first_name} {driver.user?.last_name}</span>
                                         <br />
                                         <span>Email : {driver.user?.email}</span>

@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router';
 import axios from 'axios';
 import { refreshAccessToken } from '../authenticate/auth';
 import RegisterDriverProfile from './driver_profile';
+import api from '../Api';
 
 export default function RegisterUser() {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -47,7 +48,7 @@ export default function RegisterUser() {
         }
         const access = localStorage.getItem('access')
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/register/', AllData, {
+            const response = await api.post('api/register/', AllData, {
                 headers: {
                     'Authorization': `Bearer ${access}`,
 
@@ -71,7 +72,7 @@ export default function RegisterUser() {
             if (error.response?.status == 401) {
                 const refresh = await refreshAccessToken()
                 if (refresh) {
-                    const retry = await axios.post('http://localhost:8000/api/register/', AllData, {
+                    const retry = await api.post('api/register/', AllData, {
                         headers: {
                             'Authorization': `Bearer ${refresh}`,
                         }

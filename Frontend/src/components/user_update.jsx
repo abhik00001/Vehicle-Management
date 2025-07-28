@@ -4,6 +4,7 @@ import { Form } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
+import api from "../Api";
 export default function Update_User() {
     const navigate = useNavigate()
     const { userId } = useParams()
@@ -105,7 +106,7 @@ export default function Update_User() {
         }
 
         try {
-            const response = await axios.patch(`http://localhost:8000/api/update_user/${userId}`, form, {
+            const response = await api.patch(`api/update_user/${userId}`, form, {
                 headers: {
                     "Authorization": `Bearer ${access}`,
                 }
@@ -119,7 +120,7 @@ export default function Update_User() {
             if (error.response?.status === 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const response = await axios.patch(`http://localhost:8000/api/update_user/${userId}`, form, {
+                    const response = await api.patch(`api/update_user/${userId}`, form, {
                         headers: {
                             Authorization: `Bearer ${newAccess}`,
                         }

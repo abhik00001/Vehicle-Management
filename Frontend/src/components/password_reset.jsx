@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router";
 import { refreshAccessToken } from "../authenticate/auth";
+import api from "../Api";
 export default function PasswordReset() {
     const navigate = useNavigate()
     const {uid} = useParams()
@@ -23,7 +24,7 @@ export default function PasswordReset() {
         e.preventDefault()
         
         try {
-            const response = await axios.post(`http://localhost:8000/api/user/resetPassword/`,{
+            const response = await api.post(`api/user/resetPassword/`,{
                 uid:uid,
                 token:token,
                 passwords:passwords

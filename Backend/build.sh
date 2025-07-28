@@ -6,7 +6,7 @@ python manage.py collectstatic --no-input
 
 python manage.py migrate
 
-if [ "$CREATE_SUPERUSER" ]; then
+if [ "$CREATE_SUPERUSER" = "True" ]; then
     echo "✅ Creating superuser from env vars..."
     python manage.py createsuperuser --no-input
 else

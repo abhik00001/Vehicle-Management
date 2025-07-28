@@ -5,6 +5,7 @@ import Card from 'react-bootstrap/Card';
 import { refreshAccessToken } from '../authenticate/auth';
 import '../css/vehicles.css'
 import { Link } from 'react-router';
+import api, { MyBaseUrl } from '../Api';
 
 export default function Driver() {
     const [drivers, setDriver] = useState([]);
@@ -13,7 +14,7 @@ export default function Driver() {
     async function fetchDrivers(query = '') {
             const access = localStorage.getItem('access')
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/drivers/?search=${query}`, {
+                const response = await api.get(`api/drivers/?search=${query}`, {
                     headers: {
                         Authorization: `Bearer ${access}`
                     }
@@ -27,7 +28,7 @@ export default function Driver() {
                     const refreshToken = await refreshAccessToken()
                     if (refreshToken) {
                         try {
-                            const retry = await axios.get("http://127.0.0.1.1:8000/api/drivers/", {
+                            const retry = await api.get("api/drivers/", {
                                 headers: {
                                     Authorization: `Bearer ${refreshToken}`
                                 }
@@ -85,7 +86,7 @@ export default function Driver() {
                             drivers.map((driver, i) => {
                                 return (
                                     <Card key={i} style={{ width: '18rem', marginBottom: "10px" }}>
-                                        <Card.Img variant="top" src={`http://127.0.0.1:8000${driver.profile_image}`} />
+                                        <Card.Img variant="top" src={`${MyBaseUrl}${driver.profile_image}`} />
                                         <Card.Body>
                                             <Card.Title style={{ textAlign: "Center", textTransform: "uppercase" }} >{driver.first_name} {driver.last_name}</Card.Title>
                                             <Card.Text>

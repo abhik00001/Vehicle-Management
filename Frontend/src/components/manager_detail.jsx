@@ -5,6 +5,7 @@ import { Link, UNSAFE_DataRouterContext, useNavigate, useParams } from 'react-ro
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { refreshAccessToken } from '../authenticate/auth'
+import api, { MyBaseUrl } from '../Api'
 
 export default function ManagerDetail() {
     const { managerID } = useParams()
@@ -17,7 +18,7 @@ export default function ManagerDetail() {
         const access = localStorage.getItem('access')
         const fetchManager = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/api/managers/${managerID}`, {
+                const response = await api.get(`api/managers/${managerID}`, {
                     headers: {
                         'Authorization': `Bearer ${access}`
                     }
@@ -29,7 +30,7 @@ export default function ManagerDetail() {
                 if (error.response?.status == 401) {
                     const newAccess = await refreshAccessToken()
                     if (newAccess) {
-                        const retry = await axios.get(`http://localhost:8000/api/managers/${managerID}`, {
+                        const retry = await api.get(`api/managers/${managerID}`, {
                             headers: {
                                 'Authorization': `Bearer ${newAccess}`
                             }
@@ -53,7 +54,7 @@ export default function ManagerDetail() {
         e.preventDefault()
         const access = localStorage.getItem('access')
         try{
-            const response = await axios.delete(`http://localhost:8000/api/delete_user/${managerID}`,{
+            const response = await api.delete(`api/delete_user/${managerID}`,{
                 headers: {
                     'Authorization': `Bearer ${access}`
                 }
@@ -64,7 +65,7 @@ export default function ManagerDetail() {
             if (error.response?.status == 401) {
                 const newAccess = await refreshAccessToken()
                 if (newAccess) {
-                    const retry = await axios.delete(`http://localhost:8000/api/delete_user/${managerID}`,{
+                    const retry = await api.delete(`api/delete_user/${managerID}`,{
                         headers: {
                             'Authorization': `Bearer ${newAccess}`
                         }
@@ -100,7 +101,7 @@ export default function ManagerDetail() {
                         error ? <h3>User Not Exist</h3> :
                             <div >
                                 <div style={detail}>
-                                    <span><img src={`http://localhost:8000/${manager.profile_image}`} /></span>
+                                    <span><img src={`${MyBaseUrl}${manager.profile_image}`} /></span>
                                     <span>Name :{manager.first_name} {manager.last_name}</span>
                                     <br />
                                     <span>Email : {manager.email} </span>
